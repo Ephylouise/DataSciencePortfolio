@@ -1,0 +1,268 @@
+---
+title: 'DTSC 650: Data Analytics In R'
+subtitle: 'CodeGrade Assignments Part 1: pizza'
+output: html_notebook
+editor_options:
+  chunk_output_type: inline
+---
+
+## Student Info
+
+```         
+Name: Steph Roberts
+Term: 2024SP1
+Date: 24JAN2024
+```
+
+------------------------------------------------------------------------
+
+## General Instructions
+
+------------------------------------------------------------------------
+
+### Name of File
+
+Name your assignment file **`pizza`**. This is a quarto "markdown" file, which has the file has the extension '.qmd'.
+
+------------------------------------------------------------------------
+
+### Allowable packages
+
+The only allowable package is `tidyverse`. You should not use any other packages as CodeGrade is not set up to accept them on this assignment.
+
+-   If the allowable packages are not installed on your local computer, you'll need to do a one-time installation *from the Console Window in RStudio* for each package like this:\
+    **`install.packages('<package name>')`**\
+    *Do not attempt to install packages in code that you submit to CodeGrade.*
+
+-   Note: installing the entire tidyverse with `install.packages('tidyverse')` from the Console Window will save you from having to install any of the tidyverse's individual packages in the future.
+
+-   In your code, load the package's library like this: **`library(<library name>)`**
+
+-   **Download the pizza.csv file from Brightspace and place it in the same folder/directory as your script file. Then in RStudio, set your Working Directory to your Source File location: In the menus choose Session \| Set Working Directory \| To Source File Location.**
+
+-   Load the pizza.csv file like this: `pizza <- read_csv('pizza.csv')`
+
+------------------------------------------------------------------------
+
+### Data Set
+
+The data set for this assignment is called **`pizza`**. It is from Introduction to [***Statistics and Data Analysis - with exercises, solutions and applications in R***](https://chris.userweb.mwn.de/book/) by by Christian Heumann, Michael Schomaker and Shalabh.
+
+------------------------------------------------------------------------
+
+### Pipe Notation
+
+You may use the `tidyverse` pipe **`%>%`** or the new base R pipe **`|>`**. See [here](https://www.tidyverse.org/blog/2023/04/base-vs-magrittr-pipe/) for a comparison.
+
+You are expected to use pipe notation in all of the CodeGrade assignments. Although there are alternate ways to filter, subset, and summarize data sets, using the pipe creates more readable code and is an important skill to develop.
+
+------------------------------------------------------------------------
+
+### Rounding requirement
+
+-   Round all float/dbl values to two decimal places.
+
+------------------------------------------------------------------------
+
+### Dataframe vs. Tibble
+
+Typically, in CodeGrade assignments, we expect output to be dataframes, not tibbles, unless otherwise noted.
+
+------------------------------------------------------------------------
+
+### Inline vs. Console
+
+By default, RStudio uses Inline output (Notebook mode) on R Markdown documents. You can switch between Inline and Console output modes by clicking the gear button in the editor toolbar (to the left of the green "insert new code chunk") and choosing either "Chunk Output Inline" or "Chunk Output in Console". See [here](https://bookdown.org/yihui/rmarkdown/notebook.html#creating-a-notebook) for more information.
+
+Console output can be useful for debugging since that's how your solutions will appear to CodeGrade. You can type code directly into the Console as well and run it from there. For example: after you run the Q0 example code inline (shown below), you can type `Q0<ENTER>` in the Console to see how the output appears to CodeGrade.
+
+------------------------------------------------------------------------
+
+### Preliminaries
+
+```{r}
+### It's always a good idea when working in RStudio to start with a clean environment. 
+### Clear objects from the environment memory that may be leftoever from previous 
+###   versions of your code or other assignments by running the following line:
+rm(list = ls())
+
+### Load Libraries
+library(tidyverse) 
+
+### Load the data file
+pizza <- read_csv('pizza.csv')
+
+### There may be red warning messages about nycflights13 and dplyr. You can ignore these. Feel free to search online for the explanations for these messages.
+```
+
+### Before attempting the questions (Q1-Q5) below, familiarize yourself with the `pizza` dataset. Run the following block.
+
+```{r}
+pizza
+
+# You may get a warning based on your version of R, which says:
+## "[WARNING] Deprecated: --self-contained. use --embed-resources --standalone"
+# You can ignore this.
+```
+
+------------------------------------------------------------------------
+
+## Questions
+
+------------------------------------------------------------------------
+
+### Q1 Create a dataframe containing driver names of instances where free_wine = 1, discount_customer = 1, and the order contained more than 4 pizzas. (There will be repeated names).
+
+-   Your solution should be a dataframe assigned to Q1. In the Console Window the output should look something like this:
+
+```         
+  driver
+1 [name]
+2 [name]
+...
+n [name]
+```
+
+```{r}
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q1 # 
+
+### TYPE YOUR CODE BELOW ###
+
+
+Q1 <- pizza |> 
+  filter(free_wine == 1, 
+         discount_customer == 1, 
+         pizzas > 4) |> 
+  select(driver) |> 
+  as.data.frame()
+
+
+### VIEW OUTPUT ###
+Q1
+
+```
+
+### Q2 Create a variable named `ratio` that is the ratio of `bill` to `pizza`, called ratio. What is the average of that value (call the value `mean_ratio`)?
+
+-   Your solution should be a dataframe assigned to Q2.
+
+```{r}
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q2 # 
+
+### TYPE YOUR CODE BELOW ###
+
+
+Q2 <- pizza |> 
+  select(bill, pizzas) |> 
+  mutate(ratio = bill / pizzas) |> 
+  summarise(mean_ratio = round(mean(ratio, na.rm = TRUE), 2)) |> 
+  as.data.frame()
+
+
+
+### VIEW OUTPUT ###
+Q2
+
+```
+
+### Q3 For each day of the week, what is the variance in pizzas?
+
+-   The created values should be called var_pizzas.
+
+-   Your solution should be a dataframe assigned to Q3. In the Console Window the output should look something like this:
+
+```         
+    day var_pizzas
+1 [day]    [value]
+2 [day]    [value]
+...
+n [day]    [value]
+```
+
+```{r}
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q3 # 
+
+### TYPE YOUR CODE BELOW ###
+
+
+Q3 <- pizza |> 
+  group_by(day) |> 
+  summarise(var_pizzas = round(var(pizzas, na.rm = TRUE), 2)) |> 
+  as.data.frame()
+
+
+### VIEW OUTPUT ###
+Q3
+
+```
+
+### Q4 Which operator had the highest average bill?
+
+-   Your solution should be a dataframe assigned to Q4. In the Console Window the output should look something like this:
+
+```
+  operator
+1  [value]
+```
+
+```{r}
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q4 # 
+
+### TYPE YOUR CODE BELOW ###
+
+
+Q4 <- pizza |> 
+  group_by(operator) |> 
+  summarise(ave_bill = round(mean(bill, na.rm= TRUE), 2)) |> 
+  slice_max(ave_bill) |> 
+  select(operator) |> 
+  as.data.frame()
+  
+
+
+### VIEW OUTPUT ###
+Q4
+
+```
+
+### Q5 What was the highest amount of free wine given by day/driver combination? (For instance, Friday Bruno was 13, while Wednesday Salvator was 12.)
+
+-   Your solution should be a dataframe assigned to Q5. In the Console Window the output should look something like this:
+
+```         
+    day driver    count
+1 [day]  [name] [value]
+```
+
+```{r}
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q5 # 
+
+### TYPE YOUR CODE BELOW ###
+
+Q5 <- pizza |> 
+  group_by(day, driver) |> 
+  summarise(count = sum(free_wine, na.rm = TRUE)) |> 
+  ungroup() |> 
+  slice_max(count) |> 
+  as.data.frame()
+  
+  
+### VIEW OUTPUT ###
+Q5
+
+```
+
+------------------------------------------------------------------------
+
+# Before submitting to Code Grade:
+
+1)  Clear objects from your environment. Click the broom in the Environment pane in the top right. This will erase any variables (like Q1, Q2) that you've stored.
+
+2)  Rerun all your code. You can click the "Run" option above in this script pane (top right of notebook), then select "Run all". You should have all the variables stored again in the environment pane, and you should see no red error messages in the console below.
+
+------------------------------------------------------------------------

@@ -1,0 +1,509 @@
+---
+title: 'DTSC 650: Data Analytics In R'
+subtitle: 'CodeGrade Final Project Part 1'
+output: html_notebook
+editor_options:
+  chunk_output_type: inline
+---
+
+## Student Info
+
+```         
+Name: Steph Roberts
+Term: 2024SP1
+Date: 20JAN2024
+```
+
+------------------------------------------------------------------------
+
+## General Instructions
+
+------------------------------------------------------------------------
+
+### Allowable packages
+
+The only allowable packages are `tidyverse`. You should not use any other packages as CodeGrade is not set up to accept them on this assignment.
+
+------------------------------------------------------------------------
+
+### Do / Do not
+
+-   Do use tidyverse functions for all of the questions where possible.
+
+-   Do use plenty of comments throughout your code so that the grader can follow your line of thinking.
+
+-   Do not use `print()` anywhere in the notebook. If you do this while working on the project, please be sure to comment those lines out before submitting.
+
+-   Do not rearrange dataframe outputs unless specified by the question instructions.
+
+-   Do not create multiple copies of the BRFSS dataset in your script. Creating too many copies of the dataset can cause CodeGrade to crash with exit code -9. If you see that error on your Practice Submission, please check for this.
+
+------------------------------------------------------------------------
+
+### Data Set
+
+-   These data come from [Kaggle](https://www.kaggle.com/cdc/behavioral-risk-factor-surveillance-system).
+
+-   To answer these questions you will need to use the codebook on Brightspace, called `codebook15_llcp.pdf`. Please note that not all of the variables listed in the codebook are included in the .csv file to be downloaded from Brightspace.
+
+
+------------------------------------------------------------------------
+
+### Pipe Notation
+
+You may use the `tidyverse` pipe **`%>%`** or the new base R pipe **`|>`**. See [here](https://www.tidyverse.org/blog/2023/04/base-vs-magrittr-pipe/) for a comparison.
+
+You are expected to use pipe notation in all of the CodeGrade assignments. Although there are alternate ways to filter, subset, and summarize data sets, using the pipe creates more readable code and is an important skill to develop.
+
+------------------------------------------------------------------------
+
+### Rounding requirement
+
+Round all float/dbl values to two decimal places.
+
+------------------------------------------------------------------------
+
+### Dataframe vs. Tibble
+
+Typically, in CodeGrade assignments, we expect output to be dataframes, not tibbles, unless otherwise noted.
+
+------------------------------------------------------------------------
+
+### Preliminaries
+
+```{r}
+### Load Library
+library(tidyverse) 
+
+### Load the data file
+brf <- read_csv("BRFSS2015_650.csv", show_col_types = FALSE)
+
+```
+
+------------------------------------------------------------------------
+
+## Questions
+
+------------------------------------------------------------------------
+
+### Q1 How many people reported their general health is excellent?
+
+-   The answer should be a number assigned to Q1.
+
+```{r}
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q1 # 
+
+### TYPE YOUR CODE BELOW ###
+
+#The GENHLTH variable represents the question: "Would you say that in general your health is:"
+#The GENHLTH responses are excellent (1), very good (2), good (3), fair (4), poor (5), don't know/not sure (7), refused (9), and not asked or missing (BLANK)
+
+#Count occurrences of "excellent" responses for general health
+health <- brf |>
+  filter(GENHLTH == 1) |> #Filter for "excellent" responses
+  summarise(exc = n()) |> #Summarize number of rows
+  as.data.frame()
+
+Q1 <- health$exc #76,032 respondents reported their health as excellent
+
+### VIEW OUTPUT ###
+Q1
+
+```
+#### There were 76,032 respondents who reported their health as "excellent"
+
+```{r}
+#Out of curiosity, let's take it one step further and find out what percentage of respondents reported excellent health.
+exc_percent <- brf |> 
+  filter(!is.na(GENHLTH), GENHLTH != "BLANK") |>  #Exclude blank/missing responses
+  summarise(Percentage = mean(GENHLTH == "1") * 100) |> #Calculate proportion of "excellent" responses
+  round(2) |> 
+  as.data.frame()
+#17% of respondents reported "excellent" health
+exc_percent
+```
+#### The respondents who reported their health as "excellent" account for 17% of the responses.
+
+
+
+### Q2 What is the highest value for the number of adult women in the household where someone has ever had a stroke?
+
+-   Summarize the value in a variable called `max_num_women`.
+-   The output should be a dataframe assigned to Q2 and look something like this:
+
+```         
+  max_num_women
+1       [value]
+```
+
+```{r}
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q2 # 
+
+### TYPE YOUR CODE BELOW ###
+
+#The CVDSTRK3 variable represents the question: "Have you ever been told you had a stroke?"
+#The CVDSTRK3 response options are: yes (1), no (2), don't know/not sure (7), refused (9)
+#The NUMWOMEN variable represents the question: "What is the number of adult women in your household?"
+#The NUMWOMEN response possibilities are: 0 - 99
+
+#Find max number of women in household for respondents who have had a stroke
+Q2 <- brf |>
+  filter(CVDSTRK3 == "1") |>  #Filter for response "yes" for stroke
+  summarise(max_num_women = max (NUMWOMEN, na.rm = TRUE)) |> #find the maximum number of adult women while excluding NAs
+  as.data.frame()
+
+### VIEW OUTPUT ###
+Q2
+
+```
+#### The highest number of adult women in a household where someone had a stroke is 10.
+
+
+
+### Q3 Compute the mean and standard deviation for `MENTHLTH` comparing caregivers who managed personal care such as giving medications, feeding, dressing, or bathing and those who did not.
+
+-   The summary variable names should be `mean_mental` and `sd_mental`.
+-   Keep in mind that one of the possible answers to "how many days" in MENTHLTH is 0, not just 1-30.
+-   Your output should match the value included in the dataframe below. This value is given to you as a check to make sure you are on the right track.
+-   The output should be a dataframe assigned to Q3 and look something like this:
+
+```         
+    CRGVPERS mean_mental sd_mental
+1          1        5.23   [value]
+2          2     [value]   [value]
+```
+
+```{r}
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q3 # 
+
+### TYPE YOUR CODE BELOW ###
+
+#The CRGVPERS variable represents the question: "In the past 30 days, did you provide care for this person by managing personal care such as giving medications, feeding, dressing, or bathing?"
+#The CRGVPERS response options are: yes (1), no (2), don't know/not sure (7), refused (9)
+#The MENTHLTH variable represents the question: "for how many days during the past 30 days was your mental health not good?"
+#The MENTHLTH responses include: number of days (1-30), none (88), don't know/not sure (77), and refused (99)
+
+#Calculate mean and SD of mental health days by personal care givers
+Q3 <- brf |>
+  filter(CRGVPERS %in% c(1,2), #Filter for caregivers 
+         !MENTHLTH %in% c(77, 99)) |>  #Exclude "don't know", "refused"
+  mutate(MENTHLTH = ifelse(MENTHLTH == 88, 0, MENTHLTH))|> #Assign numerical value to response "none" for poor mental health days (88).
+  group_by(CRGVPERS) |>  #Group by caregivers, the categorical variable
+  summarise(mean_mental = round(mean(MENTHLTH, na.rm = TRUE), 2), #Calculate statistics of "not good" mental health days
+            sd_mental = round(sd(MENTHLTH, na.rm = TRUE),2)) |>
+  as.data.frame()
+
+### VIEW OUTPUT ###
+Q3
+
+```
+#### As probably expected, caregivers have a higher average (and range) of poor mental health days than non-caregivers.
+
+
+
+### Q4 What is the median age when respondents were told they had diabetes for those living in Pennsylvania?
+
+-   Only calculate it for those who gave an age.
+-   The summary variable name should be `med_diab_age`.
+-   The output should be a dataframe assigned to Q4 and look something like this:
+
+```         
+  med_diab_age
+1      [value]
+```
+
+```{r}
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q4 # 
+
+### TYPE YOUR CODE BELOW ###
+
+#The _STATE variable represents the U.S. state or territory in which the respondents report living, with Pennsylvania being represented by 42.
+#The DIABAGE2 variable represents the question: "How old were you when you were told you have diabetes?"
+#The DIABAGE2 responses include: age in years (1-97), don't know/not sure (98), refused (99)
+
+#Calculate median age of diabetes diagnosis of respondents from PA
+Q4 <- brf |>
+  filter(`_STATE` == 42,  #Filter for respondents living in Pennsylvania
+         DIABAGE2 <= 97,  #Filter for age of diabetes diagnoses to exclude "don't know" or "refused"
+         !is.na(DIABAGE2)) |> #Exclude NAs
+  summarise(med_diab_age = median(DIABAGE2, na.rm = TRUE)) |> #Summarize the median age reported for diabetes diagnosis
+  as.data.frame()
+
+### VIEW OUTPUT ###
+Q4
+
+```
+#### The average age of diabetes diagnosis for respondents living in Pennsylvania is 55. 
+
+
+
+### Q5 Predict the number of days in the past 30 days that mental health was not good from marital status.
+
+-   Your output should match the value included in the summary below. This value is given to you as a check to make sure you are on the right track.
+-   Keep in mind that one of the possible answers to "how many days" is 0, not just 1-30.
+-   Make sure you know what type of variable MARITAL is. You'll need to consider this when determining how to do linear regression with it.
+-   Assign the summary of the model to Q5. Note: the general instructions say to round all output but the summary() of a model is not able to be rounded. Your output should look something like this:
+
+```         
+Call:
+lm(formula = <VARIABLE> ~ <VARIABLE>, data = <data_set>)
+
+Residuals:
+    Min       1Q   Median        3Q      Max 
+[value]  [value]   [value]  [value]  [value]  
+
+Coefficients:
+            Estimate Std. Error t value Pr(>|t|)    
+(Intercept)  [value]    [value] [value]  [value] ***
+MARITAL2     2.26240    [value] [value]  [value] ***
+MARITAL3     [value]    [value] [value]  [value] ***
+MARITAL4     [value]    [value] [value]  [value] ***
+MARITAL5     [value]    [value] [value]  [value] ***
+MARITAL6     [value]    [value] [value]  [value] ***
+```
+
+Be careful that the names your output (e.g., MARITAL2) match exactly with those shown above.
+
+```{r}
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q5 # 
+
+### TYPE YOUR CODE BELOW ###
+
+#The MENTHLTH variable represents the question: "for how many days during the past 30 days was your mental health not good?"
+#The MENTHLTH responses include: number of days (1-30), none (88), don't know/not sure (77), and refused (99)
+#The MARITAL variable represents the questions: "Are you (marital status)?"
+#The MARITAL response options include: married (1), divorced (2), widowed (3), separated (4), never married (5), 
+#a member of an unmarried couple (6), and refused (9)
+
+#Filter and mutate variables
+ment_mar <- brf |>
+  filter(!MENTHLTH %in% c(77, 99), #Exclude "don't know", "refused"
+         MARITAL != 9) |> #Exclude "refused"
+  mutate(MENTHLTH = ifelse(MENTHLTH == 88, 0, MENTHLTH), #Assign numerical value to those who responded "none" to poor mental health days.
+         MARITAL1 = ifelse(MARITAL == 1, 1, 0), #Linear regression requires numerical variables
+         MARITAL2 = ifelse(MARITAL == 2, 1, 0), #Categorical variables must be recoded into separate binary (dummy) variables. 
+         MARITAL3 = ifelse(MARITAL == 3, 1, 0), #Create dummy variables for each category of the MARITAL variable.
+         MARITAL4 = ifelse(MARITAL == 4, 1, 0),
+         MARITAL5 = ifelse(MARITAL == 5, 1, 0),
+         MARITAL6 = ifelse(MARITAL == 6, 1, 0)) |> 
+  #select all but 1 of the categorical variable to avoid multicolinearity within the model.
+  select(MENTHLTH, MARITAL2, MARITAL3, MARITAL4, MARITAL5, MARITAL6) |> 
+  as.data.frame()
+
+#Fit and summarize linear regression model
+Q5 <- summary(lm(MENTHLTH ~ ., ment_mar))
+
+### VIEW OUTPUT ###
+Q5
+
+```
+#### The model suggests marital status is a significant predictor of "not good" mental health days. In a simple linear regression with a categorical independent variable, the coefficients tell us how much, on average, the dependent variable changes compared with the missing group. 
+
+#### For our example, separated respondents (MARITAL4), report 4.5 more, on average, poor mental health days in the past 30 days as compared with married respondents (MARITAL1). In fact, each coefficient being positive suggests that our missing group, the married respondents, reported the lowest on average poor mental health days. Let us explore that below.
+
+
+
+### Q6 Use `summarise` to compare the mean number of days in the past 30 days that mental health was not good by marital status.
+
+-   The summary variable name should be mean_mental.
+-   Your output should match the value included in the dataframe below. This value is given to you as a check to make sure you are on the right track.
+-   The mean value for marital status 1 should help you to confirm the intercept value from Q5.
+-   The output should be a dataframe assigned to Q6 and look something like this:
+
+```         
+  MARITAL mean_mental
+1       1     [value]
+2       2     [value]
+3       3        3.08
+4       4     [value]
+5       5     [value]
+6       6     [value]
+```
+
+```{r}
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q6 # 
+
+### TYPE YOUR CODE BELOW ###
+
+#The MENTHLTH variable represents the question: "for how many days during the past 30 days was your mental health not good?"
+#The MENTHLTH responses include: number of days (1-30), none (88), don't know/not sure (77), and refused (99)
+#The MARITAL variable represents the questions: "Are you (marital status)?"
+#The MARITAL response options include: married (1), divorced (2), widowed (3), separated (4), never married (5), a member of an unmarried couple (6), and refused (9)
+
+#Calculate mean and SD of mental health days by marital group
+Q6 <- brf |>
+  filter(!MENTHLTH %in% c(77, 99), #Exclude "don't know", "refused" from the mental health variable
+         MARITAL != 9) |>  #Exclude "refused" from the marital variable
+  mutate(MENTHLTH = ifelse(MENTHLTH == 88, 0, MENTHLTH)) |> #Assign 0 to the "none" response for number of days
+  group_by(MARITAL) |>  #Group by categorical variable
+  summarise(mean_mental = mean(MENTHLTH, na.rm = TRUE)) |> #Summarize the mean of "not good" mental health days
+  round(2) |> 
+  as.data.frame()
+
+### VIEW OUTPUT ###
+Q6
+
+```
+#### As suspected, respondents who are married (1) had the lowest average reported days of "not good" mental health. Comparatively, those who are separated (4) had the highest average reported days of "not good" mental health.
+
+
+
+
+### Q7 Calculate the means and standard deviations of `MENTHLTH` for those who have ever been diagnosed with a stroke and those who have not had a stroke only for those who do not have any kind of healthcare coverage.
+
+-   The summary variable names should be mean_mental and sd_mental.
+
+-   Your output should match the value included in the dataframe below. This value is given to you as a check to make sure you are on the right track.
+
+-   The output should be a dataframe assigned to Q7 and look something like this:
+
+```         
+<VARIABLE> mean_mental sd_mental
+1         1        8.89   [value]
+2         2     [value]   [value]
+```
+
+```{r}
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q7 # 
+
+### TYPE YOUR CODE BELOW ###
+
+#The HLTHPLN1 variable represents the question: "Do you have any kind of health care coverage?"
+#The HLTHPLN1 responses include: yes (1), no (2), don't know/not sure (7), refused (9)
+#The MENTHLTH variable represents the question: "for how many days during the past 30 days was your mental health not good?"
+#The MENTHLTH responses include: number of days (1-30), none (88), don't know/not sure (77), and refused (99)
+#The CVDSTRK3 variable represents the question: "Have you ever been told you had a stroke?"
+#The CVDSTRK3 response options are: yes (1), no (2), don't know/not sure (7), refused (9)
+
+#Calculate mean and SD of mental health days for those without healthcare coverage, grouped by stroke
+Q7 <- brf |>
+  filter(HLTHPLN1 == 2,  #Filter to include only those without healthcare coverage
+         !MENTHLTH %in% c(77, 99),  #Exclude "don't know", "refused"
+         !CVDSTRK3 %in% c(7, 9)) |> #Exclude "don't know", "refused"
+  mutate(MENTHLTH = ifelse(MENTHLTH == 88, 0, MENTHLTH)) |> #Assign 0 to the "none" response for number of days
+  group_by(CVDSTRK3) |>   #Group by the stroke variable
+  summarise(mean_mental = round(mean(MENTHLTH), 2), #Summarize the mean and sd of mental health variable
+            sd_mental = round(sd(MENTHLTH), 2)) |> 
+  as.data.frame()
+
+### VIEW OUTPUT ###
+Q7
+
+```
+#### Respondents without healthcare coverage who DID have a stroke had a higher average reported number of poor mental health days than those who did not have a stoke.
+
+
+
+
+### Q8 Each respondent was asked if they participated in any physical activities in the past month. They were then asked what physical activity they spent the most time doing (or did the most) in the past month. Next, they were asked how many times per week or per month they took part in that exercise/activity. Run an ANOVA comparing how many times ***per week*** they took part in that exercise/activity with marital status.
+
+-   You may need to do some research on how to do this in R.
+-   Viewing the Codebook and Questionnaire may be helpful once you determine the correct variable to analyze.
+-   Assign the summary of `aov()` to Q8. Note: the general instructions say to round all output but the summary of `aov()` is not able to be rounded.
+-   Your output should match the value included in the output below. This value is given to you as a check to make sure you are on the right track.
+-   Use the summary of aov() not anova().
+
+```         
+                         Df     Sum Sq  Mean Sq  F value   Pr(>F)    
+[variable]                5       7706  [value]  [value]  [value] ***
+Residuals             [value]  [value]  [value]                                
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+```
+
+```{r}
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q8 # 
+
+### TYPE YOUR CODE BELOW ###
+
+#The EXEROFT1 variable represents the question: "How many times per week or per month did you take part in this activity during the past month?"
+#The EXEROFT1 responses include: times per week (101 - 199, where 101 represents 1 time per week), times per month (201-299), don't know/not sure (777), refused (999)
+#The MARITAL variable represents the questions: "Are you (marital status)?"
+#The MARITAL response options include: married (1), divorced (2), widowed (3), separated (4), never married (5), 
+#a member of an unmarried couple (6), and refused (9)
+
+#Filter and mutate variable data
+act <- brf |> 
+  filter(MARITAL != 9, #Exclude refused
+         EXEROFT1 %in% c(101:199)) |> #Include only 'per week' responses
+  mutate(MARITAL = as.factor(MARITAL), #Set the categorical variable (MARITAL) to a factor variable for the ANOVA
+         PERWEEK = as.numeric(substr(EXEROFT1, 2, 3))) |> #Substring exercise variable to remove the first digit
+  as.data.frame()
+
+#Run and summarize the ANOVA
+Q8 <- summary(aov(PERWEEK ~ MARITAL, data = act)) 
+
+### VIEW OUTPUT ###
+Q8
+
+```
+#### The ANOVA shows the null hypothesis can be rejected. It suggests that at least 2 of the marital groups are significantly different from each other in relation to reported times per week in which the respondents most common type of physical activity was performed.
+
+
+
+
+### Q9 Consider only men for the following question. Each respondent was asked if they participated in any physical activities in the past month. They were then asked what physical activity they spent the most time doing (or did the most) in the past month.
+
+### Respondents were also asked to consider the past 30 days and answer either a) how many days per week or b) how many days per month did they have at least one drink of any alcoholic beverage.
+
+### For each type of physical activity or exercise, calculate the variance of the number of days *per week* a respondent drank alcohol.
+
+-   Note: pay careful attention to how values are coded in the Codebook.
+
+-   The summary variable name should be called var_drinks.
+
+-   Arrange in descending order, and include only the six with the highest variance in drinks.
+
+-   The output should be a dataframe assigned to Q9 and look something like this:
+
+```         
+  EXRACT11 var_drinks
+1       55    [value]
+2  [value]    [value]
+3  [value]    [value]
+4  [value]       6.67
+5  [value]    [value]
+6  [value]    [value]
+```
+
+```{r}
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q9 # 
+
+### TYPE YOUR CODE BELOW ###
+
+#The SEX variable represents the question/prompt: "Indicate sex of respondent."
+#The SEX responses are male (1) or female (2)
+#The EXRACT11 variable represents the question: "What type of physical activity or exercise did you spend the most time doing during the past month?"
+#The EXRACT11 responses include an extensive list of activities, each with a number (1-76), as well as other (98), don't know/not sure (77), refused (99)
+#The ALCDAY5 variable represents the question: "During the past 30 days, how many days per week or per month did you have at least one drink of any alcoholic beverage such as beer, wine, a malt beverage or liquor?"
+#The ALCDAY5 responses included: days per week (101 - 199, where 101 represents 1 time per week), days per month (201-299), don't know/not sure (777), refused (999)
+
+#Calculate the variance of days per week of alcohol consumption by type of physical activity for male respondents
+Q9 <- brf |>  
+  filter(SEX == 1,  #Filter only men
+         EXRACT11 %in% c(1:76, 99), #Filter valuable exercise types (excluding "don't know", "refused")
+         ALCDAY5 %in% c(101:199, 888)) |>  #Filter "per week" responses and "none" responses
+  mutate(ALCDAY5 = ifelse(ALCDAY5 == 888, 0, ALCDAY5 %% 100)) |> #Represent 0 and divide else by 100 to remove first digit (ex. 101 is 1)
+  group_by(EXRACT11) |>  #Group by the categorical variable
+  summarise(var_drinks = round(var(ALCDAY5, na.rm = TRUE),2)) |> #Summarize to calculate the variance of drinking days per week
+  arrange(desc(var_drinks)) |>  #Arrange with highest variance at the top
+  slice_head(n = 6) |>  #Slice the top 6 
+  as.data.frame()
+
+### VIEW OUTPUT ###
+Q9
+
+```
+#### Stream fishing in waders (response 55) is the type of exercise/activity that has the largest variance of weekly alcohol consumption among male respondents.
+
+
+------------------------------------------------------------------------
