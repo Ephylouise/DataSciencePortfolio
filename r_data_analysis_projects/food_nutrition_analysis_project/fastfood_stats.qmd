@@ -1,0 +1,260 @@
+---
+title: 'DTSC 650: Data Analytics In R'
+subtitle: 'CodeGrade Assignments Part 2: fastfoodStats'
+output: html_notebook
+editor_options:
+  chunk_output_type: inline
+---
+
+## Student Info
+
+```         
+Name: Steph Roberts
+Term: 2024 SP1
+Date: 6 Feb 2024
+```
+
+------------------------------------------------------------------------
+
+## General Instructions
+
+------------------------------------------------------------------------
+
+### Name of File
+
+Name your assignment file **`fastfoodStats`**. This is a quarto "markdown" file, which has the file has the extension '.qmd'.
+
+------------------------------------------------------------------------
+
+### Allowable packages
+
+The only allowable packages are `tidyverse`, `openintro` (you will need to install it if you haven't already), and `lm.beta` You should not use any other packages as CodeGrade is not set up to accept them on this assignment.
+
+-   If the allowable packages are not installed on your local computer, you'll need to do a one-time installation *from the Console Window in RStudio* for each package like this:\
+    **`install.packages('<package name>')`**\
+    *Do not attempt to install packages in code that you submit to CodeGrade.*
+
+-   Note: installing the entire tidyverse with `install.packages('tidyverse')` from the Console Window will save you from having to install any of the tidyverse's individual packages in the future.
+
+-   In your code, load the package's library like this: **`library(<library name>)`**
+
+------------------------------------------------------------------------
+
+### Data Set
+
+The data set for this assignment is called **`fastfood`**. See the [fastfood documentation](https://www.openintro.org/data/index.php?data=fastfood) for more info.
+
+------------------------------------------------------------------------
+
+### Pipe Notation
+
+You may use the `tidyverse` pipe **`%>%`** or the new base R pipe **`|>`**. See [here](https://www.tidyverse.org/blog/2023/04/base-vs-magrittr-pipe/) for a comparison.
+
+You are expected to use pipe notation in all of the CodeGrade assignments. Although there are alternate ways to filter, subset, and summarize data sets, using the pipe creates more readable code and is an important skill to develop.
+
+------------------------------------------------------------------------
+
+### Rounding requirement
+
+-   Round all float/dbl values to two decimal places.
+
+------------------------------------------------------------------------
+
+### Dataframe vs. Tibble
+
+Typically, in CodeGrade assignments, we expect output to be dataframes, not tibbles, unless otherwise noted.
+
+------------------------------------------------------------------------
+
+### Inline vs. Console
+
+By default, RStudio uses Inline output (Notebook mode) on R Markdown documents. You can switch between Inline and Console output modes by clicking the gear button in the editor toolbar (to the left of the green "insert new code chunk") and choosing either "Chunk Output Inline" or "Chunk Output in Console". See [here](https://bookdown.org/yihui/rmarkdown/notebook.html#creating-a-notebook) for more information.
+
+Console output can be useful for debugging since that's how your solutions will appear to CodeGrade. You can type code directly into the Console as well and run it from there.
+
+------------------------------------------------------------------------
+
+### Preliminaries
+
+```{r}
+### It's always a good idea when working in RStudio to start with a clean environment. 
+### Clear objects from the environment memory that may be leftoever from previous 
+###   versions of your code or other assignments by running the following line:
+rm(list = ls())
+
+### Load Libraries
+library(tidyverse) 
+library(openintro) 
+library(lm.beta)
+
+### There may be warning messages about some of the packages. You can ignore these. Feel free to search online for the explanations for these messages.
+```
+
+------------------------------------------------------------------------
+
+## Questions
+
+------------------------------------------------------------------------
+
+### Q1 Create a correlation matrix for the relations between calories, total_fat, sugar, and calcium for all items at Sonic, Subway, and Taco Bell, omitting missing values with `na.omit()`.
+
+-   Assign the matrix to Q1. It should look something like this:
+
+```         
+         calories total_fat   sugar calcium
+calories  [value]   [value] [value] [value]
+total_fat [value]   [value] [value] [value]
+sugar     [value]   [value] [value] [value]
+calcium   [value]   [value] [value] [value]
+```
+
+```{r}
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q1 # 
+
+### TYPE YOUR CODE BELOW ###
+
+Q1 <- fastfood |> 
+  filter(restaurant %in% c("Sonic", "Subway", "Taco Bell")) |> 
+  select(calories, 
+         total_fat, 
+         sugar, 
+         calcium) |> 
+  na.omit() |> 
+  cor() |> 
+  round(2)
+    
+
+
+### VIEW OUTPUT ###
+Q1
+
+```
+
+### Q2 Create a regression predicting whether or not a restaurant is McDonalds or Subway based on calories, sodium, and protein. (McDonalds should be 1, Subway 0) Hint: make sure you know how McDonalds is spelled in the dataset.
+
+-   Assign the model coefficients to Q2. Your output should look something like this:
+
+```         
+(Intercept)  calories   sodium  protein
+    [value]   [value]  [value]  [value]
+```
+
+```{r}
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q2 # 
+
+### TYPE YOUR CODE BELOW ###
+
+
+rest <- fastfood |> 
+  filter(restaurant %in% c('Mcdonalds', 'Subway')) |> 
+  mutate(restbin = ifelse(restaurant == 'Subway', 0, 1))
+
+mod1 <- glm(restbin ~ calories + sodium + protein, binomial(), rest)
+
+
+Q2 <- round(coefficients(mod1), 2)
+
+### VIEW OUTPUT ###
+Q2
+
+```
+
+### Q3 Run the same regression as in Q2 but remove sodium as a predictor. Which is the better model?
+
+-   Use the classical AIC (k=2).
+-   Assign the AIC of the better model to Q3.
+
+```{r}
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q3 # 
+
+### TYPE YOUR CODE BELOW ###
+
+
+mod2 <- glm(restbin ~ calories + protein, binomial(), rest)
+
+Q3 <- round(AIC(mod1, k = 2), 2)
+
+round(AIC(mod2, k = 2), 2)
+
+
+### VIEW OUTPUT ###
+Q3
+
+```
+
+### Q4 Run a regression predicting calories from saturated fat, fiber, and sugar. Based on *standardized* regression coefficients, identify the strongest predictor.
+
+-   Assign the ***un**standardized* regression coefficient of the strongest predictor to Q4.
+-   (You can access the coefficients by indexing the model object.)
+
+```{r}
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q4 # 
+
+### TYPE YOUR CODE BELOW ###
+
+mod3 <- lm(calories ~ sat_fat + fiber + sugar, fastfood)
+
+lm.beta(mod3) #saturated fat appears to be the strongest predictor
+
+Q4 <- round(mod3$coefficients['sat_fat'], 2)
+
+### VIEW OUTPUT ###
+Q4
+
+```
+
+### Q5 For this question, use data from only restaurants with between 50 and 60 items in the data set. Predict total fat from cholesterol, total carbs, vitamin a, and restaurant. Remove any nonsignificant predictors and run again.
+
+-   Assign the strongest standardized regression coefficient to Q5. Your output should look something like this:
+
+```         
+[variable name]
+        [value]
+```
+
+```{r}
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q5 # 
+
+### TYPE YOUR CODE BELOW ###
+
+ams <- fastfood %>% #Arbys, Mcdonalds, and Sonic have between 50 and 60 items
+  group_by(restaurant) %>%
+  filter(n_distinct(item) >= 50 & n_distinct(item) <= 60) |> 
+  as.data.frame()  
+
+#Run linear model
+mod4 <- lm(total_fat ~ cholesterol + total_carb + vit_a + restaurant, ams)
+summary(mod4)
+
+#Remove non significant predictor (vit_a)
+mod5 <- lm(total_fat ~ cholesterol + total_carb + restaurant, ams)
+summary(mod5)
+
+#Standardize model
+std_mod5 <- lm.beta(mod5)
+
+std_mod5 #Cholesterol is the strongest std coef at 0.82
+
+#Extract the standardized coefficient
+Q5 <- round(std_mod5$standardized.coefficients["cholesterol"], 2)
+
+### VIEW OUTPUT ###
+
+Q5
+
+```
+
+------------------------------------------------------------------------
+
+# Before submitting to Code Grade:
+
+1)  Clear objects from your environment. Click the broom in the Environment pane in the top right. This will erase any variables (like Q1, Q2) that you've stored.
+
+2)  Rerun all your code. You can click the "Run" option above in this script pane (top right of notebook), then select "Run all". You should have all the variables stored again in the environment pane, and you should see no red error messages in the console below.
+
+------------------------------------------------------------------------
