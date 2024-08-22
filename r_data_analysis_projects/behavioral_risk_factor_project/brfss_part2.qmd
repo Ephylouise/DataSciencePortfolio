@@ -1,0 +1,1034 @@
+---
+title: 'DTSC 650: Data Analytics In R'
+subtitle: 'CodeGrade Final Project Part 2'
+output: html_notebook
+editor_options:
+  chunk_output_type: inline
+---
+
+## Student Info
+
+```         
+Name: Steph Roberts
+Term: 2024SP1
+Date: 11FEB2024
+```
+
+------------------------------------------------------------------------
+
+## General Instructions
+
+------------------------------------------------------------------------
+
+### Instructions
+
+For the final section, you will choose four variables to explore in ways we have not in Q1-Q9. You will choose one of those four variables as the response variable and the other three as predictors. Be sure to read through all of the instructions for Q10-Q14 before choosing your 4 variables. 
+
+We expect that you will choose 4 *different* variables than those covered in Part 1, Q1-9.
+
+Feel free to create multiple variables for Q12, Q13, and Q14, e.g. Q12a, Q12b, etc. Please make it clear, though, the distinction between each question/problem with comments, spacing, and new code chunks. If you use Q12a, b, etc., be sure to print the results by doing Q12a or print(Q12a). Your answers must be clearly identifiable. 
+
+Take time to tidy your code once you are finished. The easier it is for us to understand, the more partial credit you could receive.
+
+------------------------------------------------------------------------
+
+### Allowable packages
+
+Allowable packages are `tidyverse`, `caret`, `Hmisc`, `lsr`, `olsrr`, `psych`, `lm.beta`.
+
+------------------------------------------------------------------------
+
+### Do / Do not
+
+-   Do use tidyverse functions (e.g., dplyr verbs) for all of the questions where possible.
+
+-   Do use The Pipe.
+
+-   Do use plenty of comments throughout your code chunks so that the grader can follow your line of thinking.
+
+-   Do use the "Q Discussion:" sections provided to explain your thinking and to answer the questions.
+
+-   Do not rearrange data frame outputs unless specified by the question instructions.
+
+-   Do not create multiple copies of the BRFSS dataset in your script. Creating too many copies of the dataset can cause CodeGrade to crash with *exit code -9*. If you see that error on your Practice Submission, please check for this.
+
+-   Do have integrity and submit your own work, not the work of a classmate, an online resource, or someone else.
+
+------------------------------------------------------------------------
+
+### Submission
+
+You only have ONE ATTEMPT to submit Part 2 to the ACTUAL submission link! On all the other assignments, you got multiple attempts; but not on this assignment. 
+
+Ensure you are ready and confident in your work before submitting.
+
+------------------------------------------------------------------------
+
+
+### Data Set
+
+-   These data come from [Kaggle](https://www.kaggle.com/cdc/behavioral-risk-factor-surveillance-system).
+
+-   To answer these questions you will need to use the codebook on Brightspace, called `codebook15_llcp.pdf`. Please note that not all of the variables listed in the codebook are included in the .csv file to be downloaded from Brightspace.
+
+-   Download the `BRFSS2015_650.csv` file from Brightspace and place it in the same folder/directory as your script file. Then in RStudio, set your Working Directory to your Source File location: in the menus choose Session, Set Working Directory, To Source File Location. You most likely will see some warnings after it loads due to the fact that `read_csv()` will try to guess the column type but because there are so many rows it won't read enough of them to accurately make a guess.
+
+-   You must use the `read_csv()` function when loading the .csv file. Do not use `read.csv()`.
+
+-   Do not rename the .csv file that you download from Brightspace.
+
+-   Do not edit the .csv file.
+
+------------------------------------------------------------------------
+
+### Pipe Notation
+
+You may use the `tidyverse` pipe **`%>%`** or the new base R pipe **`|>`**. For a comparison, see [here](https://www.tidyverse.org/blog/2023/04/base-vs-magrittr-pipe/).
+
+You are expected to use pipe notation in all of the CodeGrade assignments. Although there are alternate ways to filter, subset, and summarize data sets, using the pipe creates more readable code and is an important skill to develop.
+
+------------------------------------------------------------------------
+
+### Comments vs. Discussion
+
+You should include both comments within your code chunk as well a discussion after each coded answer. Comments explain your code and your thought process; the discussion uses your code to answer the questions we've asked. We have provided "Q Discussion" sections for each question. Feel free to add more lines in the discussion section. 
+
+You can also use markdown headers to organize your discussion and the outline. For more info on markdown, see [here](https://rmarkdown.rstudio.com/authoring_basics.html)
+
+
+------------------------------------------------------------------------
+
+## Questions and Coded Solutions
+
+------------------------------------------------------------------------
+
+### Preliminaries
+
+```{r}
+### It's always a good idea when working in RStudio to start with a clean environment. 
+
+### Clear objects from the environment memory that may be leftover from previous versions of your code or other assignments by running the following line:
+rm(list = ls())
+
+### Load the libraries you need
+
+library(tidyverse) 
+library(ggplot2)
+
+#Allowable packages are `tidyverse`, `caret`, `Hmisc`, `lsr`, `olsrr`, `psych`, `lm.beta`.
+
+### Load the data file
+### Do not change this line
+brf <- read_csv("brfss2015.csv", show_col_types = FALSE)
+
+```
+
+------------------------------------------------------------------------
+
+## Questions
+
+------------------------------------------------------------------------
+
+### Q10
+
+Address the values of each of the variables (use the codebook for this and include your answer as comments). For instance, is "none" equal to a value other than 0? Are there extra decimals implied? Are there other values that should be excluded based on the responses they represent? Which variable will you seek to predict from the other variables? Answer these questions in the *Q10 Discussion:* section below the code chunk. Update the dataset to account for these values for the remainder of the questions in this part.
+
+
+First, let's narrow down out dataframe to include only variables we want to explore
+
+```{r}
+# Q10a
+# The assignment calls for us to choose 4 *different* variables than those covered in Part 1, Q1-9.
+# Part 1, Q1-9, used the following variables: GENHLTH, CVDSTRK3, NUMWOMEN, CRGVPERS, _STATE, DIABAGE2, MARITAL, HLTHPLN1, EXEROFT1, SEX, ALCDAY5, MENTHLTH, and EXRACT11.
+
+# Remove all columns used in Part 1 of the final project and make new df
+brff <- brf |> # brff (brf filtered) is our new df
+  select(-GENHLTH, -CVDSTRK3, -NUMWOMEN, -CRGVPERS, -`_STATE`, 
+         -DIABAGE2, -MARITAL, -HLTHPLN1, -EXEROFT1, -SEX, 
+         -ALCDAY5, -MENTHLTH, -EXRACT11) |> 
+  as.data.frame()
+
+# From the codebook, we can see that some remaining variables have more than 300,000 missing values (CDHOUSE, CDASSIST, CDDISCUS, EMTSUPRT, LSATISFY, ADPLEASR, ADANXEV, MISTMNT, CIMEMLOS). Let's remove those as well.
+# POORHLTH is a variable very similar to PHYSHLTH. The question is: "During the past 30 days, for about how many days did poor physical or mental health keep you from doing your usual activities, such as self-care, work, or recreation?" With the possibility of multicolinearity and considering it has 200,000+ missing responses, we will also remove this variable.
+brff <- brff |> 
+  select(-CDHOUSE, -CDASSIST, -CDDISCUS, -EMTSUPRT, -LSATISFY, -ADPLEASR, -ADANXEV, -MISTMNT, -CIMEMLOS, -POORHLTH) |> 
+  as.data.frame()
+
+# Lastly, PERDOC2 refers to the question: "Do you have one person you think of as your personal doctor or health care provider?". In the survey, "no" responses are followed up with another question asking if they have more than one doctor. We do not have the follow up question, and this question itself does not provide much inherently useful information. We will remove this variable as well. 
+brff <- brff |> 
+  select(-PERSDOC2) |> 
+  as.data.frame()
+
+col <- colnames(brff)
+col
+```
+
+Unfortunately, we do not have the SEX of variable to work with, which could be an interesting variable to explore the relationship with other variables. Also, we lack any age or other demographic data. So, we will have to carefully choose our 4 other variables that have some sort of cohesion from which we may be able to draw some conclusions or make some predicitons. From the remaining 16 variables, let's clean up our data to exclude non-value responses like "don't know" and "refused", and recode those like "none" as 0. 
+
+```{r}
+# Q10b
+# The PHYSHLTH variable represents the question: "Thinking about your physical health, which includes physical illness and injury, for how many days during the past 30 days was your physical health not good?"
+# The PHYSHLTH responses include: hours (1 - 30), none (88), don't know/ not sure (77),  refused (99)
+# Filter PHYSHLTH
+brff <- brff |>
+  filter(!PHYSHLTH %in% c(77, 99)) |> # Exclude "don't know" and "refused"
+  mutate(PHYSHLTH = ifelse(PHYSHLTH == 88, 0, PHYSHLTH)) |> # Mutate the "none" response to a 0.
+  as.data.frame()
+
+# The ASTHMA3 variable represents the question: "Have you ever been told  you that you have asthma?"
+# The ASTHMA3 responses include: yes (1), no (2), don't know/ not sure (7),  refused (9)
+# Filter asthma variable
+brff <- brff |>
+  filter(!ASTHMA3 %in% c(7, 9)) |>  # Exclude "don't know", "refused"
+  as.data.frame()
+
+# The ADDEPEV2 variable represents the question: "Have you ever been told  you that you have a depressive disorder, including depression, major depression, dysthymia, or minor depression?"
+# The ADDEPEV2 responses include: yes (1), no (2), don't know/ not sure (7),  refused (9)
+# Filter depression variable
+brff <- brff |>
+  filter(!ADDEPEV2 %in% c(7, 9)) # Exclude "don't know", "refused"
+
+# The EDUCA variable represents the question: "What is the highest grade or year of school you completed?"
+# The EDUCA responses include: Never attended school or only kindergarten (1), Elementary (2), Some high school (3), High school graduate (4),Some college or technical school (5), College graduate (6), refused (9). 
+# Filter education variable
+brff <- brff |> 
+  filter(!EDUCA %in% c(9)) |>  # Exclude "refused"
+  as.data.frame()
+
+# The VETERAN3 variable represents the question: "Have you ever served on active duty in the United States Armed Forces?"
+# The VETERAN3 responses include: yes (1), no (2), don't know/ not sure (7),  refused (9).
+# Filter veteran variable
+brff <- brff |> 
+  filter(!VETERAN3 %in% c(7, 9)) |> # Exclude "don't know", "refused"
+  as.data.frame()
+
+# The EMPLOY1 variable represents the employment demographic question: "Are you currently...?"
+# The EMPLOY1 responses include: employed for wages (1), self-employed (2), out of work 1 year or more (3), out of work less than 1 year (4), homemaker (5), student (6) retired (7), unable to work (8), refused (9).
+# Filter employment variable
+brff <- brff |> 
+  filter(!EMPLOY1 %in% c(9)) |>  # Exclude "refused"
+  as.data.frame()
+
+# The WEIGHT2 variable represents the demographic question: "About how much do you weigh without shoes?"
+# The WEIGHT2 responses include: weight in pounds (50 - 0999) representing 0 _ _ _ = weight in lbs, don't know/not sure (7777), weight in kilograms (9000 - 9998)  refused (9999).
+# Filter weight variable
+brff <- brff |>
+  filter(!WEIGHT2 %in% c(7777, 9999)) |>  # Exclude "don't know", "refused"
+  mutate(WEIGHT2 = case_when(
+      WEIGHT2 >= 9000 & WEIGHT2 <= 9998 ~ as.numeric(substr(WEIGHT2, 2, 4)) * 2.20462,  # Convert kilograms to pounds
+      TRUE ~ as.numeric(substr(WEIGHT2, 1, 3)))) |>  # Extract the weight values from responses in pounds
+  as.data.frame()
+
+# The HEIGHT3 variable represents the demographic question: "About how tall are you without shoes?"
+# The HEIGHT3 responses include: height in ft/inches (200 - 711) representing 0 _ / _ _ = feet/inches, don't know/not sure (7777), height in meter/centimeters (9000 - 9998),  refused (9999).
+# Filter height variable and mutate to continuous number (inches)
+brff <- brff |>
+  filter(!HEIGHT3 %in% c(7777, 9999)) |>  #Exclude "don't know", "refused"
+  mutate(HEIGHT3 = case_when(
+      HEIGHT3 >= 200 & HEIGHT3 <= 711 ~ as.numeric(substr(HEIGHT3, 1, 1)) * 12 + as.numeric(substr(HEIGHT3, 2, 3)),  # Convert feet and inches to inches
+      HEIGHT3 >= 9000 & HEIGHT3 <= 9998 ~ as.numeric(substr(HEIGHT3, 1, 4)) * 39.3701,  # Convert meters and centimeters to inches
+      TRUE ~ NA_real_  )) |>  # Set other values to NA  
+  as.data.frame()
+
+# The SMOKE100 variable represents the question: "Have you smoked at least 100 cigarettes in your entire life?"
+# The SMOKE100 responses include: yes (1), no (2), don't know/ not sure (7),  refused (9)
+# Filter smoker variable
+brff <- brff |> 
+  filter(!SMOKE100 %in% c(7, 9)) |>  # Exclude "don't know", "refused"
+  as.data.frame()
+
+# The MAXDRNKS variable represents the question: "During the past 30 days, what is the largest number of drinks you had on any occasion?"
+# The MAXDRNKS variable responses include: number of drinks (1 - 76), don't know/not sure (77), refused (99).
+brff <- brff |> 
+  filter(!MAXDRNKS %in% c(77, 99)) |>  # Exclude "don't know", "refused"
+  as.data.frame()
+
+# The FRUITJU1 variable represents the question: "During the past month, how many times per day, week or month did you drink 100 percent PURE fruit juices?"
+# The FRUITJU1 variable responses include: times per day (101-199, where 101 represents 1 time per week), times per week (201-299), less than one time per month (300), times per month (301-399), never (555), don't know/not sure (777), refused (999)
+# Filter fruit juice variable and mutate to continuous number (times per month)
+brff <- brff |> 
+  filter(!FRUITJU1 %in% c(777, 999)) |>  # Exclude "don't know", "refused"
+  mutate(FRUITJU1_continuous = case_when(
+    FRUITJU1 >= 101 & FRUITJU1 <= 199 ~ (FRUITJU1 - 100) * 30,  # transform times per day to times per month
+    FRUITJU1 >= 201 & FRUITJU1 <= 299 ~ (FRUITJU1 - 200) * 4,  # transform times per week to times per month
+    FRUITJU1 == 300 ~ 0.5,  # less than one time per month
+    FRUITJU1 >= 301 & FRUITJU1 <= 399 ~ FRUITJU1 - 300,  # times per month
+    FRUITJU1 == 555 ~ 0,  
+    TRUE ~ NA_real_  # handle other cases
+  )) |> 
+  as.data.frame()
+
+# The SCNTLWK1 variable represents the question: "Thinking about the last time you worked, about how many hours did you work per week at all of your jobs and businesses combined?"
+# The SCNTLWK1 responses include: hours (1 - 96), don't know/ not sure (97), zero (98), refused (99)
+# Filter hours worked variable
+brff <- brff |>
+  filter(!SCNTLWK1 %in% c(97, 99)) |> # Exclude "don't know" and "refused"
+  mutate(SCNTLWK1 = ifelse(SCNTLWK1 == 98, 0, SCNTLWK1)) |>  # Mutate the "zero" response to a 0
+  as.data.frame()
+```
+
+Now that all our possible variables are cleaned up, let's check a correlation matrix
+
+```{r}
+# Q10c
+# Let's check a correlation matrix of our 
+
+# Filter out NAs temporarily (for now) to see correlations
+brff_no_na <- na.omit(brff)
+
+# Calculate correlation
+cor(brff_no_na)
+```
+
+### Q10 Discussion:
+
+There does not appear to be any very strong correlations (close to 1 or -1) between our remaining variables. Therefore, we must lower our threshold for a correlation accordingly and simply try to find the variable with the highest correlation coefficients with 3 other variables.
+
+Our strongest correlation coefficient is (0.31) between CHILDREN and EMPLOY1, which makes logical sense. Those with more children would have to chose their method of employment accordingly. The variable EMPLOY1 also has correlation coefficients greater than 0.10/-0.10 with PHYSHLTH (0.12), VETERAN3 (-0.16), and MAXDRNKS (0.10). One option is to predict employment type from number of children, physical health days, and veteran status (choosing the 3 variables with the highest correlation to employment type). 
+
+Alternatively, PHYSHLTH itself has potential as an outcome variable. It has correlation coefficients stronger than 0.10/-0.10 with ADDEPEV2 (-0.25), EDUCA (-0.13), ASTHMA3 (-0.13), EMPLOY1 (0.12), and SMOKE100 (-0.12). Therefore, another option for our linear regression modeling with this data could be predicting number of poor physical health days from depression diagnosis, asthma, smoker, and/or employment type. 
+
+We will proceed with the latter. Physical health will be our outcome variable and we will explore which is best to choose for our predictor variables. The reason for deciding against the employment correlations relates to multicolinearity. The choice to be a homemaker and number of children are likely closely tied. Also, veteran status and retirement status likely have a large overlapping population. Instead, let's explore what variables could be significant predictors of the number of "not good" physical health days per month. 
+
+
+### Q11
+
+Remove any outliers for each applicable variable. Make sure you are updating the dataset from Q10 and using this dataset for the remainder of the questions. Briefly explain why you chose the method you used in the *Q11 Discussion* section. Within your code chunk, provide comments explaining what your code is doing.
+
+```{r}
+# Q11a
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q11 # 
+
+# Clean up the variables identified from the correlation matrix to be of interest: PHYSHLTH, ADDEPEV2, EDUCA, ASTHMA3, EMPLOY1, SMOKE100
+# Select only applicable columns and remove NAs from the working dataset 
+brff <- brff |> 
+  select(PHYSHLTH, ADDEPEV2, EDUCA, ASTHMA3, EMPLOY1, SMOKE100) |> 
+  drop_na() |> 
+  as.data.frame()
+
+# Count observations in dataframe
+brff |> 
+  nrow() |> 
+  as.data.frame()
+```
+
+There are 370,247 observations left in our dataframe after removing NAs from applicable columns.
+
+```{r}
+# Q11b
+# Explore whether there are outliers to be removed from the independent variables
+
+# We have 2 categorical variables
+# Create EDUCA table
+edu <- table(brff$EDUCA)
+
+# Create EMPLOY1 table
+emp <- table(brff$EMPLOY1)
+
+# The other 3 variables are binary
+# ADDEPEV2 - Create table
+dep <- table(brff$ADDEPEV2) # There are 71,879 respondents who have been diagnosed with depression, and 298,368 who have not.
+
+# ASTHMA3 - create table
+asthma <- table(brff$ASTHMA3) # There are 49,900 respondents who have been diagnosed with asthma, and 320,347 who have not.
+
+# SMOKE100 - create table 
+smoke <- table(brff$SMOKE100) # There are 161,802 respondents who have have at least 100 cigarettes in their lifetime, and 208,445 who have not.
+```
+
+The categorical variables of EDUCA and EMPLOY1 have no outliers. The binary variables of ADDEPEV2, ASTHMA3, and SMOKE100 also do not have any outliers.
+
+```{r}
+# Q11c
+# PHYSHLTH - Visualize the data looking for outliers
+# Create box plot for PHYSHLTH
+ggplot(brff, aes(y = PHYSHLTH)) +
+  geom_boxplot() +
+  labs(title = "Boxplot of PHYSHLTH")
+```
+The boxplot of physical health shows us that most of the observations fall in the lower number of days, but it does not provide us with a great understanding of how many observations fall outside of the Interquartile Range (IQR).
+
+```{r}
+# Q11d
+# Create histogram for PHYSHLTH
+ggplot(brff, aes(x = PHYSHLTH)) +
+  geom_histogram(binwidth = 1, fill = "skyblue", color = "black") +
+  labs(title = "Histogram of PHYSHLTH", x = "PHYSHLTH", y = "Frequency")
+```
+The histogram of PHYSHLTH demonstrated the distribution of observations nicely. Of note, the data is heavily right skewed. However, there is a spike of observations at 30 days. Next, it should be determined how many outliers the PHYSHLTH variable has and whether it would be best to remove them. 
+
+
+```{r}
+# Q11e
+# Filter outliers for PHYSHLTH using the IQR method because our data is not normally distributed, it is heavily skewed
+phys_out <- brff |> 
+  filter(PHYSHLTH > quantile(PHYSHLTH, 0.75, na.rm = TRUE) + 1.5 * IQR(PHYSHLTH, na.rm = TRUE) |
+         PHYSHLTH < quantile(PHYSHLTH, 0.25, na.rm = TRUE) - 1.5 * IQR(PHYSHLTH, na.rm = TRUE)) |> 
+  select(PHYSHLTH) |> 
+  as.data.frame()
+
+# Count PHYSHLTH outliers 
+nrow(phys_out) # There are 60,052 outliers within PHYSHLTH
+
+# View table of responses we would lose if we filter outliers
+table(phys_out) # There are 28,851 respondents who said there were 30 days of "not good" health
+
+# Calculate the proportion of observations reported 30 days
+proportion_30 <- brff %>%
+  filter(PHYSHLTH == 30) %>%
+  nrow() / nrow(brff) * 100
+
+proportion_30 # The proportion of respondents who reported 30 is 7.79% 
+```
+### Q11 Discussion:
+
+There are a total of 60,052 (out of 370,247) outliers in our PHYSHLTH variable. Considering it is our outcome variable, it may be best to be conservative and avoid removing outliers. In this case, there are 28,851 people (7.79% of respondents) who chose the option 30 days. Overall, it is not a huge percentage, but it is a great deal of people who all chose that response. Due to the large spike in the data observations at the tail end of our data, removing outliers would delete a large number of respondents who agreed that their physical health was "not good" every single day over the last month. Instead of removing these outliers, we should explore how our independent variables effects the physical health variable, while keeping the 30 day respondents in the mix. Therefore, we will not remove outliers for PHYSHLTH.
+
+
+
+### Q12
+
+Complete exploratory analyses (for each variable) doing appropriate visualizations with ggplot2. Include visualizations that incorporate a combination of your variables within one plot. Provide an organized discussion of your observations for each of the plots in the *Q12 Discussion* section below.
+
+### Explore and visualize individual variables
+
+```{r fig.width=8, fig.height=5}
+# Q12a
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q12 # 
+
+# Explore PHYSHLTH
+
+# Visualize the distribution of responses for PHYSHLTH
+ggplot(brff, aes(x = PHYSHLTH)) +
+  geom_histogram(binwidth = 1, fill = "skyblue", color = "black") + # Create histogram
+  geom_text(stat = "count", aes(label = ..count.., color = factor(..count..)), angle = 60, vjust = -0.5, hjust = -0.15) +  # Rotate count labels and adjust color
+  labs(title = "How many days during the past 30 days was your physical health not good?", # Add plot labels
+       x = "Days",
+       y = "Number of Respondents") +
+  scale_color_discrete(guide = FALSE) +  # Remove legend for count colors
+  theme_minimal() +
+  coord_cartesian(ylim = c(0, max(table(brff$PHYSHLTH)) * 1.2))  # Adjust y-axis limit to make the plot taller
+```
+
+For number of days of "not good" physical health in the past month, the majority of respondents reported 0, the mean response was 4.27 and the max, as we know, is 30. Again, we can see it is right skewed, but there is a significant spike at 30. 
+
+```{r}
+# Q12b
+# Explore ADDEPEV2
+
+# Visualize ADDEPEV2 
+ggplot(brff, aes(factor(ADDEPEV2), fill = factor(ADDEPEV2))) +
+  geom_bar(color = "black") +
+  geom_text(stat='count', aes(label=..count..), vjust=-0.5, size=3, color="black") +  #Add frequency counts
+  scale_fill_manual(values = c("plum", "lavender"), guide = "none") +  # Color and remove the legend
+  labs(y = "Frequency of Responses") +  #Relabel the x and y-axis
+  scale_x_discrete(labels = c("1" = "Yes", "2" = "No")) +  #Change x-axis tick labels
+  theme(axis.line = element_line(color = "gray"),
+        axis.ticks = element_line(color = "gray"),
+        axis.ticks.length = unit(3, "mm"),
+        plot.background = element_rect(fill = "darkgrey")) +  #Set the background color
+  xlab(NULL) + #Remove x-axis label
+  ggtitle("Have you ever been told that you have a depressive disorder?")  #Set the plot title
+```
+
+There are 71,879 "yes" and 298,368 "no" responses to "Have you ever been told that you have a depressive disorder?". A large majority of respondents have not been diagnosed with depression.
+
+```{r}
+# Q12c
+# Explore EDUCA
+
+# Create a barplot with custom labels
+ggplot(brff, aes(x = factor(EDUCA))) + # Factor EDUCA
+  geom_bar(aes(fill = factor(EDUCA)), color = "black") + # Fill with EDUCA
+  scale_x_discrete(labels = c("1" = "No school", # Add labels
+                               "2" = "Elementary",
+                               "3" = "Some high school",
+                               "4" = "High school grad",
+                               "5" = "Some college",
+                               "6" = "College grad")) +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5), # Angle test
+        legend.position = "none", # Remove legend
+        plot.background = element_rect(fill = "lightgray", color = "black")) + # Adjust background color
+  xlab(NULL) + # Remove x-axis label
+  labs(title = "Education Levels", # Add titles
+       y = "Frequency")
+
+```
+The variable EDUCA has 6 levels of education ranging from no school to college graduation. The most common response was college graduate, with some college and high school graduate following closely behind. 
+
+```{r}
+# Q12d
+# Explore ASTHMA3
+
+# Visualize bar chart of ASTHMA
+ggplot(brff, aes(factor(ASTHMA3), fill = factor(ASTHMA3))) +
+  geom_bar(color = "black") +
+  geom_text(stat='count', aes(label=after_stat(count)), vjust=-0.5, size=3, color="black") +  # Add frequency counts
+  scale_fill_manual(values = c("seagreen", "lightgreen"), guide = "none") +  # Color and remove the legend
+  labs(y = "Frequency of Responses") +  # Relabel the x and y-axis
+  scale_x_discrete(labels = c("1" = "Yes", "2" = "No")) +  # Change x-axis tick labels
+  theme(axis.line = element_line(color = "gray"),
+        axis.ticks = element_line(color = "gray"),
+        axis.ticks.length = unit(3, "mm"),
+        plot.background = element_rect(fill = "darkgrey")) +  # Set the background color
+  xlab(NULL) + # Remove x-axis label
+  ggtitle("Have you ever been told that you have asthma?")  # Set the plot title
+```
+
+There are 49,900 "yes" and 320,347 "no" responses to "Have you ever been told you that you have asthma?". A large majority of respondents have not been diagnosed with asthma.
+
+```{r}
+# Q12e
+# Explore EMPLOY1
+
+# Define custom labels for EMPLOY1
+employ_labels <- c("Employed for wages",
+                   "Self-employed",
+                   "Out of work 1 year +",
+                   "Out of work < 1 year",
+                   "Homemaker",
+                   "Student",
+                   "Retired",
+                   "Unable to work")
+
+# Define total number of responses
+total_responses <- nrow(brff)
+
+# EMPLOY1 - create table of counts
+emp_counts <- brff |> 
+  count(EMPLOY1) |> # count observations
+  mutate(Employment_status = factor(EMPLOY1, levels = 1:8, labels = employ_labels), # Add labels
+         Percent = round((n / total_responses * 100), 2)) |> # Calculate percent
+  arrange(desc(Percent)) |> # Arrange by percent
+  as.data.frame()
+
+emp_counts
+```
+
+The Table of employment status counts and percents shows us that only 2% of the respondents were out of work for a year or more, 2% were out of work for more than a year, and 7% were unable to work. As they are similar statuses, let's combine them into a single category called "not working." We will leave retired out of this consolidation as it represents a large portion of respondents and could be different from "not working" in several ways, such as age, benefits, mental and physical health. 
+
+```{r}
+# Q12f
+# Consolidate the employment status into 6 categories
+
+# Combine levels "out of work for a year +", "out of work for < 1 year", and "unable to work" into a new level called "Not working"
+# Update df with consolidated employment status
+brff <- brff |> 
+  mutate(EMPLOY1 = ifelse(EMPLOY1 %in% c(3, 4, 8), 3, EMPLOY1)) |>  # Combine levels 3, 4, and 8 into level 3
+  as.data.frame()
+
+
+# Redefine custom labels for EMPLOY1
+emp_cons_labels <- c("Employed for wages",
+                   "Self-employed",
+                   "Not Working",
+                   "Homemaker",
+                   "Student",
+                   "Retired")
+
+# Recalculate counts and percentages for each level of employment
+emp_cons_counts <- brff |> 
+  count(EMPLOY1) |>
+  mutate(Employment_status = recode(EMPLOY1, "1" = "Employed for wages", 
+                                    "2" = "Self-employed",
+                                    "3" = "Not Working",
+                                    "5" = "Homemaker",
+                                    "6" = "Student",
+                                    "7" = "Retired"),
+         Percent = round((n / sum(n) * 100), 2)) %>%
+  arrange(desc(Percent)) |> 
+  as.data.frame()
+
+emp_cons_counts
+
+# Visualize bar chart of EMPLOY1
+ggplot(brff, aes(x = factor(EMPLOY1))) +
+  geom_bar(aes(fill = factor(EMPLOY1)), color = "black") + # Create plot
+  scale_x_discrete(labels = c("1" = "Employed for wages", # Add labels
+                              "2" = "Self-employed",
+                              "3" = "Not Working",
+                              "5" = "Homemaker",
+                              "6" = "Student",
+                              "7" = "Retired")) +
+  theme(axis.text.x = element_text(angle = -45, vjust = 0.5, hjust = 0.5), # Angle x-axis labels
+        legend.position = "none", # Remove legend
+        plot.background = element_rect(fill = "lightgray", color = "black")) + # Change background color
+  xlab(NULL) + # Remove x-axis tick numbers
+  labs(title = "Employment Type", # Add labels
+       y = "Frequency")
+
+```
+
+The EMPLOY1 variable is categorical, now with 6 groups of employment type. Employed for wages and retired are the two most common responses, while student is the least common.
+
+```{r}
+# Q12g
+# Explore SMOKE100
+
+# Create a bar plot of SMOKE100 with custom colors for smokers and non-smokers
+ggplot(brff, aes(factor(SMOKE100), fill = factor(SMOKE100))) +
+  geom_bar(color = "black") +
+  geom_text(stat='count', aes(label=..count..), vjust=-0.5, size=3, color="black") +  # Add frequency counts
+  scale_fill_manual(values = c("lightcoral", "lightgreen"), guide = "none") +  # Remove the legend
+  labs(x = "Smoker", y = "Frequency of Responses") +  # Relabel the x and y-axis
+  scale_x_discrete(labels = c("1" = "Yes", "2" = "No")) +  # Change x-axis tick labels
+  theme(axis.line = element_line(color = "gray"),
+        axis.ticks = element_line(color = "gray"),
+        axis.ticks.length = unit(3, "mm"),
+        plot.background = element_rect(fill = "lightgray")) +  # Change the background color +
+  ggtitle("Have you smoked at least 100 cigarettes in your entire life?")  # Set the plot title
+```
+
+There are 161,802 "yes" and 208,445 "no" responses to "Have you smoked at least 100 cigarettes in your entire life?". Our bar graph demonstrates that while the majority of respondents have not been a smoker at some point in their life, most than a third of respondents have. 
+
+
+### Visualizations with multiple variables
+
+
+```{r}
+# Q12h
+# PHYSHLTH vs. ADDEPEV2
+
+# Calculate the percentage of each PHYSHLTH category within each ADDEPEV2 group
+physhlth_percent <- brff |> 
+  group_by(ADDEPEV2, PHYSHLTH) |> 
+  summarise(count = n()) |> 
+  group_by(ADDEPEV2) |> 
+  mutate(percent = count / sum(count) * 100) # Calculate proportion
+
+# Create a histogram with facets for PHSYHLTH and ADDEPEV2
+ggplot(physhlth_percent, aes(x = factor(PHYSHLTH), y = percent, fill = factor(ADDEPEV2))) + # Plot the proportions
+  geom_bar(stat = "identity", position = "dodge", color = "black") + # Create bar chart
+  labs(title = "Proportion of Respondents by Physical Health and Depression Status", # Add labels
+       x = "Physical Health (PHYSHLTH)",
+       y = "Percentage",
+       fill = "Depressive Disorder") + # Label axis and fill legend
+  facet_wrap(~ factor(ADDEPEV2)) + # Facet by ADDEPEV2 levels
+  scale_fill_manual(values = c("lightcoral", "lightgreen"), # Specify colors for levels of ADDEPEV2
+                    labels = c("Yes", "No")) + # Add labels
+  theme_minimal() +
+  scale_x_discrete(breaks = NULL) # Remove x-axis tick labels
+
+```
+
+The faceted histogram demonstrates a higher proportion of those without depression reporting "none" for poor physical health days in the past month. Additionally, a higher proportion of respondents answered "30" for those with depression. This suggests there might be a connection between mental health and physical health among the respondents.
+
+
+```{r}
+# Q12i
+# EMPLOY1 vs. EDUCA
+
+# Create labels for EDUCA responses
+edu_labels <- c("No school",
+                "Elementary",
+                "Some high school",
+                "High school grad",
+                "Some college",
+                "College grad")
+
+# Create bar graph using dodge to visualize employment and education
+ggplot(brff, aes(x = factor(EMPLOY1), fill = factor(EDUCA))) +
+  geom_bar(position = "dodge") + # Align education levels next to each other
+  labs(title = "Employment Status by Education Level Frequency",
+       x = "", # Remove the x-axis variable label
+       y = "Frequency") +
+  scale_x_discrete(labels = employ_labels) + # Label the EOMPLOY1 categories on x-axis
+  scale_fill_discrete(labels = edu_labels, # Label the fill colors
+                      guide = guide_legend(title = NULL)) + # Remove legend title
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Calculate percentages of education levels for each education level
+brff_per_edu <- brff |> 
+  group_by(EDUCA, EMPLOY1) |> 
+  summarise(count = n(), .groups = "drop") |> 
+  group_by(EDUCA) |> 
+  mutate(percent = count / sum(count) * 100) |> 
+  as.data.frame()
+
+
+# Create bar graph using dodge to visualize employment by education percent
+ggplot(brff_per_edu, aes(x = factor(EMPLOY1), y = percent, fill = factor(EDUCA))) +
+  geom_bar(position = "dodge", stat = "identity") + # Align education levels next to each other
+  labs(title = "Percent of Education Level by Employment Status",
+       x = "", # Remove the x-axis variable label
+       y = "Percentage") +
+  scale_x_discrete(labels = emp_cons_labels) + # Label the EMPLOY1 categories on x-axis
+  scale_fill_discrete(labels = edu_labels, # Label the fill colors
+                      guide = guide_legend(title = NULL)) + # Remove legend title
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# Calculate percentages of employment statuses
+brff_per_emp <- brff %>%
+  group_by(EMPLOY1, EDUCA) %>%
+  summarise(count = n(), .groups = "drop") %>%
+  group_by(EMPLOY1) %>%
+  mutate(percent = count / sum(count) * 100) |> 
+  as.data.frame()
+
+# Create bar graph using dodge to visualize employment percent and education
+ggplot(brff_per_emp, aes(x = factor(EMPLOY1), y = percent, fill = factor(EDUCA))) +
+  geom_bar(position = "dodge", stat = "identity") + # Align education levels next to each other
+  labs(title = "Percent of Education Level by Employment Status",
+       x = "", # Remove the x-axis variable label
+       y = "Percentage") +
+  scale_x_discrete(labels = emp_cons_labels) + # Label the EMPLOY1 categories on x-axis
+  scale_fill_discrete(labels = edu_labels, # Label the fill colors
+                      guide = guide_legend(title = NULL)) + # Remove legend title
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+Here we have 3 distinct bar graphs. The first shows the frequency of responses that answered, for example, "high school grad" and "unable to work" were responses from roughly 10,000 participants. We learn from this that most common combination of these two variables it "college grad" and "employed for wages", with more than 70,000 respondents. 
+
+The second bar graph shows the percentage of each education level within each group of employment type. If we stacked each college grad bar on top of one another, it should reach all the way to 100%. This dodged graph demonstrates that more than 50% of college grads who took the survey were employed for wages at the time and close to 30% of college grads were retired. We can also see that high school graduates are split closely between employed for wages and retired, with about 35% and 33% respectively. 
+
+The third bar graph shows the percentage of each employment status that is represented by each education level. If we stacked each "student" bar, for example, it should reach to 100%. This teaches us that roughly 45% of self-employed respondents are college graduates. Also, the most common level of education among those who are not working is high school graduate.
+
+It could be argued that these two variables, EDUCA and EMPLOY1, have some multicolinearity. For example, many "students" mostly answered college grad or some college, which would create some redundancy in our models. While we do not have to eliminate these variables altogether, we should be careful not to include them both in the same regression later on. 
+
+```{r}
+# Q12j
+# PHYSHLTH vs. EMPLOY1
+
+# Create the violin plot with larger size
+vio <- ggplot(brff, aes(x = factor(EMPLOY1), y = PHYSHLTH, fill = factor(EMPLOY1))) +
+  geom_violin(color = "black") +
+  labs(title = "Physical Health by Employment Status",
+       x = "",  # Remove x-axis label
+       y = "Days of 'Not Good' Physical Health") +  # Change y-axis label
+  scale_x_discrete(labels = employ_labels) +  # Set custom employment labels
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5),  # Angle x-axis labels
+        legend.position = "none",  # Remove legend
+        plot.background = element_rect(fill = "lightgray"),  # Change background color
+        plot.title = element_text(size = 18)) 
+vio
+```
+
+The violin plot does not provide a great visualization due to a consolidation of responses near the x-axis, let's try geom_col
+
+```{r}
+# Q12k
+# Create graph of EMPLOY1 and PHYSHLTH
+phys_emp <- brff |> 
+  group_by(EMPLOY1) |> 
+  summarise(mean_physhlth = mean(PHYSHLTH, na.rm = TRUE)) |>  # Calculate the mean PHYSHLTH per group of EMPLOY1
+  ggplot(aes(x = factor(EMPLOY1), y = mean_physhlth)) +
+  geom_col(fill = "skyblue", color = "black") + # Change colors
+  labs(title = "Mean Physical Health by Employment Status",
+       x = "Employment Status",
+       y = "Days of Poor Physical Health") +
+  scale_x_discrete(labels = employ_labels) +  # Set custom employment labels
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust = 0.5)) # Angle x-axis labels
+
+phys_emp
+```
+This graph shows the average, by employment type, of the number of days over the past month that a respondent considered a "not good" physical health day. It shows that that the average number of poor physical health days for those unable to work is much higher than respondents from other employment statuses. That is an interesting thing to note. One might wonder if it is poor physical health that leads to an inability to work, or it the inability to work itself causes some physical symptoms brought on by lack of activity. Perhaps there is some of each, but that is simply speculation. For now, we will focus on correlation and leave causality to future studies. 
+
+```{r}
+# Q12l
+# PHYSHLTH vs. ASTHMA3
+
+phys_asthma <- brff |>
+  mutate(ASTHMA3 = factor(ASTHMA3, levels = c(1, 2), labels = c("Yes", "No"))) |> # Factor and add labels
+  group_by(ASTHMA3) |>
+  summarise(mean_PHYSHLTH = mean(PHYSHLTH, na.rm = TRUE)) |> # Find the mean
+  ggplot(aes(x = ASTHMA3, y = mean_PHYSHLTH, fill = ASTHMA3)) + # Create plot
+  geom_bar(stat = "identity", color = "black") +
+  labs(title = "Average PHYSHLTH by Asthma Status", # Add labels
+       x = "Asthma Status",
+       y = "Average PHYSHLTH") +
+  scale_fill_manual(values = c("Yes" = "#1f78b4", "No" = "#33a02c")) +  # Set colors for "Yes" and "No"
+  theme_minimal()+
+  ylim(0, 10)+  #Extend the y-axis limits from 0 to 10
+  theme(legend.position = "none",  # Remove redundant legend
+        plot.title = element_text(hjust = 0.5)) # Center title
+
+phys_asthma
+```
+
+Those with asthma had a higher average reported number of poor physical health days over the past month at close to 7 days. Those without asthma reported almost half the average number of poor physical health days. 
+
+```{r}
+# Q12m
+# PHYSHLTH vs. EDUCA
+
+# Create bar graph of average PHYSHLTH by education level
+phys_edu <- brff |> 
+  mutate(EDUCA = factor(EDUCA, levels = 1:6, labels = edu_labels)) |> # Make EDUCA a factor variable
+  ggplot(aes(x = EDUCA, y = PHYSHLTH, fill = EDUCA)) + # Create the plot
+  geom_bar(stat = "summary", fun = "mean", color = "black") +
+  labs(title = "Average PHYSHLTH by Education Level",
+       x = "Education Level",
+       y = "Average PHYSHLTH") +
+  scale_fill_brewer(palette = "Set2") + # Change the colors
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +  # Rotate x-axis labels for better readability
+  theme(legend.position = "none",  # Remove the legend
+        plot.title = element_text(hjust = 0.5)) +  # Center the title
+  coord_cartesian(ylim = c(0, 10))  # Set y-axis limits
+
+phys_edu
+```
+
+This graph shows us the average physical health days for each level of education among respondents. Those with the 3 lowest levels, no school, elementary, and some high school, have an average greater than at least 6 days, where as those with at least high school are around an average of 5 or less. This is an interesting graph. Perhaps those with limited school dropped out at an early age to begin work early. In those cases, it is likely their bodies were put through hard work from a young age. Alternatively, it could be that dropping out of school used to be more common decades ago, which would mean our respondents in those groups could be of an older generation, which would suggest age itself could be a factor in poor physical health. 
+
+
+```{r}
+# Q12n
+# PHYSHLTH vs. SMOKE100
+
+phys_smoke <- brff |>
+  mutate(SMOKE100 = factor(SMOKE100, levels = c(1, 2), labels = c("Yes", "No"))) %>% # Label the levels
+  group_by(SMOKE100) |> 
+  summarise(mean_PHYSHLTH = mean(PHYSHLTH, na.rm = TRUE)) |> # Calculate the average
+  ggplot(aes(x = SMOKE100, y = mean_PHYSHLTH, fill = SMOKE100)) + 
+  geom_bar(stat = "identity", color = "black") +            # Create bar graph, outline in black
+  labs(title = "Average Poor Physical Health Days by Smoking Status",
+       x = "Smoking Status",
+       y = "Average PHYSHLTH") +
+  theme_minimal() +
+  ylim(0, 10) +  # Extend the y-axis limits from 0 to 10
+  theme(legend.position = "none",  # Remove the legend
+        plot.title = element_text(hjust = 0.5))  # Center the title
+
+phys_smoke
+```
+
+This graph simply shows us that smokers (whether current or former) reported slightly higher, on average, number of poor health days.
+
+```{r}
+# Q12o
+#Graph PHYSHLTH and Smoke, add a facet for asthma
+phys_smoke_asthma <- brff |> 
+  mutate(SMOKE100 = factor(SMOKE100, levels = c(1, 2), labels = c("Smoker", "Non-smoker")), # Make EDUCA a factor variable
+         ASTHMA3 = factor(ASTHMA3, levels = c(1, 2), labels = c("Yes", "No"))) |> # Make ASTHMA3 factor and add labels
+  ggplot(aes(x = SMOKE100, y = PHYSHLTH, fill = ASTHMA3)) + # Create plot
+  geom_bar(stat = "summary", fun = "mean", color = "black") + # Take the mean
+  labs(title = "Average PHYSHLTH by Smoker and Asthma",
+       x = "Smoker",
+       y = "Average PHYSHLTH") +
+  scale_fill_brewer(palette = "Set2") + # Change the colors
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1), # Angle the x-axis markers
+        plot.title = element_text(hjust = 0.5)) + # Center the title
+  facet_wrap(~ ASTHMA3) # Facet by ASTHMA3
+
+phys_smoke_asthma
+```
+Not surprisingly, those with asthma who are of have been a smoker have a much higher average of poor health days. It follows that the non-smokers without asthma had the lowest PHYSHLTH average. 
+
+### Q13
+
+Run all of the appropriate basic descriptive statistics for each of your variables.  What do these statistics reveal? Be sure to address each variable in the "Q13 Discussion" below.
+
+
+```{r}
+# Q13a
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q13 # 
+
+# Descriptive stats for asthma
+brff |> 
+  summarise(Count = n(), # Count observations
+            Total_Yes = sum(ASTHMA3 == 1),     # Count "yes" responses
+            Total_No = sum(ASTHMA3 == 2),      # Count "no" responses
+            Percent_Yes = round(mean(ASTHMA3 == 1) * 100, 2), # Count "yes" percent
+            Percent_No = round(mean(ASTHMA3 == 2) * 100, 2)) |> # Count "no" percent
+  as.data.frame()
+  
+
+# PHYSHLTH vs. ASTHMA3
+brff |> 
+  group_by(ASTHMA3) |> 
+  summarise(Mean_PHYSHLTH = round(mean(PHYSHLTH, na.rm = TRUE), 2), # Calculate the mean
+            Median_PHYSHLTH = median(PHYSHLTH, na.rm = TRUE), # Calculate the median
+            SD_PHYSHLTH = round(sd(PHYSHLTH, na.rm = TRUE), 2), # Calculate the sd
+            N = n()) |> 
+  as.data.frame()
+
+```
+
+The variable ASTHMA3 is a binary variable with only 13% of respondents said yes to having asthma. The median number of poor health days is 1, but an average of 7.26 and a standard deviation of 10.76, showing a decent amount of variability. Those without asthma reported a lower number of poor physical health days at an average of 3.80, a median of 0, and a standard deviation of 8. Of note, there is more variance in the response of those with asthma.  
+
+
+```{r}
+# Q13b
+# Descriptive stats for smoking
+brff |> 
+  summarise(Count = n(),                      # Number of observations 
+            Total_Yes = sum(SMOKE100 == 1),     # Total count of "Yes" responses
+            Total_No = sum(SMOKE100 == 2),      # Total count of "No" responses
+            Percent_Yes = round(mean(SMOKE100 == 1) * 100, 2), # Percentage of "Yes" responses
+            Percent_No = round(mean(SMOKE100 == 2) * 100, 2)) |> # Percentage of "No" responses
+  as.data.frame()
+
+# PHYSHLTH vs. SMOKE100
+brff |> 
+  group_by(SMOKE100) |> 
+  summarise(Mean_PHYSHLTH = round(mean(PHYSHLTH, na.rm = TRUE), 2), # Calculate mean
+            Median_PHYSHLTH = median(PHYSHLTH, na.rm = TRUE),  # Calculate median
+            SD_PHYSHLTH = round(sd(PHYSHLTH, na.rm = TRUE), 2), # Calculate SD
+            N = n()) |>   # Count observations
+  as.data.frame()
+```
+
+Those who smoked at least 100 cigarettes in their life, we will call smokers (whether it relates to previous or current status) for now. Smokers account for 43% of respondents and report an average of 5.46 poor physical health days over the last month, with a standard deviation of 9.87. Comparatively, the non-smokers reported an average of 3.35 days. Both groups had a median of 0 for physical health days. 
+
+
+```{r}
+# Q13c
+# Descriptive stats for depression
+brff |> 
+  summarise(Count = n(),                      # Number of observations 
+            Total_Yes = sum(ADDEPEV2 == 1),     # Total count of "Yes" responses
+            Total_No = sum(ADDEPEV2 == 2),      # Total count of "No" responses
+            Percent_Yes = round(mean(ADDEPEV2 == 1) * 100, 2), # Percentage of "Yes" responses
+            Percent_No = round(mean(ADDEPEV2 == 2) * 100, 2)) |> # Percentage of "No" responses
+  as.data.frame()
+  
+
+# PHYSHLTH vs. ADDEPEV2
+brff |> 
+  group_by(ADDEPEV2) |> 
+  summarise(Mean_PHYSHLTH = round(mean(PHYSHLTH, na.rm = TRUE), 2), # Calculate mean
+            Median_PHYSHLTH = median(PHYSHLTH, na.rm = TRUE), # Calculate median
+            SD_PHYSHLTH = round(sd(PHYSHLTH, na.rm = TRUE), 2), # Calculate SD
+            N = n()) |> # Count observations
+  as.data.frame()
+
+```
+Of the respondents for a depression diagnosis, 19% said yes, they do have depression. Those with depression have a mean PHYSHLTH of 8.57 while those without depression reported an average of 3.28. Remembering that depression had a -0.25 correlation with PHYSHLTH, which was the strongest correlation coefficient for our predictor variable, the difference in averages makes sense. It seems likely that depression and occurrence of poor physical health days are related. 
+
+
+```{r}
+# Q13d
+# Descriptive stats for education
+
+# EDUCA - create table of counts
+edu_counts <- brff |> 
+  count(EDUCA) |> # count observations
+  mutate(Education_level = factor(EDUCA, levels = 1:6, labels = edu_labels), # Add labels
+         Percent = round((n / total_responses * 100), 2)) |> # Calculate percent
+  arrange(desc(Percent)) |> # Arrange by percent
+  as.data.frame()
+
+edu_counts
+
+# PHYSHLTH vs. ADDEPEV2
+brff |> 
+  group_by(EDUCA) |> 
+  summarise(Mean_PHYSHLTH = round(mean(PHYSHLTH, na.rm = TRUE), 2), # Calculate mean
+            Median_PHYSHLTH = median(PHYSHLTH, na.rm = TRUE), # Calculate median
+            SD_PHYSHLTH = round(sd(PHYSHLTH, na.rm = TRUE), 2), # Calculate sd
+            N = n()) |> # Count observations
+  mutate(Education_Level = factor(EDUCA, levels = 1:6, labels = edu_labels)) |> # Add labels
+  arrange(desc(Mean_PHYSHLTH)) |> # Arrange by percent
+  as.data.frame()
+
+```
+
+Among respondents, 38% are college grads, 28% are high school grads, and 28% have some college. Those with only elementary school education had the highest average number of poor physical health days and college grads had the lowest. With the exception of "no school" respondents, which accounts for less that 1%, the average physical health days decreased for every increase in grad level. This indicates that an increase in education may have an effect on, or at least be correlated with, a decrease in the amount of "not good" physical health days. 
+
+
+```{r}
+# Q13e
+# Descriptive stats for employment
+
+# Review counts and percents for each level of employment
+emp_cons_counts
+
+# PHYSHLTH vs. EMPLOY1
+brff |> 
+  group_by(EMPLOY1) |> 
+  summarise(Mean_PHYSHLTH = round(mean(PHYSHLTH, na.rm = TRUE), 2), # Calculate mean
+            Median_PHYSHLTH = median(PHYSHLTH, na.rm = TRUE), # Calculate median
+            SD_PHYSHLTH = round(sd(PHYSHLTH, na.rm = TRUE), 2), # Calculate sd
+            N = n()) |>  # Count observations
+  mutate(Employment_status = factor(EMPLOY1, levels = c(1, 2, 3, 5, 6, 7), labels = emp_cons_labels)) |> # Add column with labels
+  arrange(desc(Mean_PHYSHLTH)) |> # Arrange by percent
+  as.data.frame()
+```
+
+The most common employment status is "employed for wages" with 42% of the respondents, which accounts for the group with the smallest average number of "not good" physical health days, at 2.24. Retired respondents account for 30% and have an average PHYSHLTH of 4.88. Those who were not working had the highest reported average of poor physical health days at 12.27. 
+
+
+```{r}
+# Q13f
+# Descriptive stats for physical health
+
+# Summarize PHYSHLTH
+summary(brff$PHYSHLTH)
+
+stats_physhlth <- brff |> 
+  summarise(cv_physhlth = sd(PHYSHLTH, na.rm = TRUE) / mean(PHYSHLTH, na.rm = TRUE), # Calculate variance and covariance
+            variance_physhlth = var(PHYSHLTH, na.rm = TRUE))
+
+stats_physhlth
+```
+### Q13 Discussion:
+
+PHYSHLTH respresents the question "Now thinking about your physical health, which includes physical illness and injury, for how many days during the past 30 days was your physical health not good?" PHYSHLTH has a variance of 76.84. As variance is the squared difference to the mean, this indicates a great deal of variance considering the response options are only from 0 to 30. This is likely due to the spike which we observed at the 30-mark on the graphs above. The average response was 4.27, the most common answer was 0, the third quartile began at 3 and the max was, as we know, 30.
+
+To summarize, our respondents are split into 6 groups of employment status: employed for wages (42%), retired (30%), not working, (11%), self-employed (9%), homemaker (6%), and student (3%). There are also 6 education levels, college graduates (38%), some college (28%), high school graduate (28%), some high school (5%), elementary (2%), and no school (0.1%). The depression diagnosis variable had responses of yes (19%) and no (81%). SMOKE100 represents the question "have you smoked at least 100 cigarettes?" and the responses were yes (44%) and no (56%). The asthma diagnosis variable had responses yes (13%) and no (87%). In total, there are 370,247 respondents included in our analyses. 
+
+
+
+### Q14
+
+Finally, run at least 2 different, appropriate regressions predicting the variable you indicated in Q10. These regressions should use different predictor(s). Organize and explain your code within the code chunk using comments. Identify the best model and provide a discussion of your observations in the *Q14 Discussion* section provided below. Be organized and detailed in your discussion.
+
+```{r}
+### Do not edit the following line. It is used by CodeGrade.
+# CG Q14 # 
+
+# Our categorical variables wont be analyzed correctly in a linear model until we change them to factors
+# Convert EMPLOY1, EDUCA, and ADDEPEV2 into factors
+brff$EMPLOY1 <- factor(brff$EMPLOY1)
+brff$EDUCA <- factor(brff$EDUCA)
+brff$ADDEPEV2 <- factor(brff$ADDEPEV2)
+brff$SMOKE100 <- factor(brff$SMOKE100)
+brff$ASTHMA3 <- factor(brff$ASTHMA3)
+
+# Only using 4 variables at a time, we will fit some linear models
+# Fit linear regression model (Due to multicolinearity we will avoid EDUCA and EMPLOY1 together)
+lm_model1 <- lm(PHYSHLTH ~ ADDEPEV2 + ASTHMA3 + SMOKE100, data = brff) # R-squared 0.074
+lm_model2 <- lm(PHYSHLTH ~ ADDEPEV2 + ASTHMA3 + EMPLOY1, data = brff) # R-squared 0.154
+lm_model3 <- lm(PHYSHLTH ~ ADDEPEV2 + ASTHMA3 + EDUCA, data = brff) # R-squared 0.084
+lm_model4 <- lm(PHYSHLTH ~ ADDEPEV2 + SMOKE100 + EMPLOY1, data = brff) # R-squared 0.151
+lm_model5 <- lm(PHYSHLTH ~ ADDEPEV2 + SMOKE100 + EDUCA, data = brff) # R-squared 0.079
+lm_model6 <- lm(PHYSHLTH ~ ADDEPEV2 + ASTHMA3, data = brff) # R-squared 0.066
+
+# Summary of the linear regression models
+sm1 <- summary(lm_model1)
+sm2 <- summary(lm_model2)
+sm3 <- summary(lm_model3)
+sm4 <- summary(lm_model4)
+sm5 <- summary(lm_model5)
+sm6 <- summary(lm_model6)
+
+Q14 <- sm2 # The 2nd model including depression (ADDEPEV2), asthma (ASTHMA3), and employment status (EMPLOY1) is our best model
+
+Q14
+```
+
+### Q14 Discussion:
+
+In this analysis, we employed linear regression models to predict the number of days of "not good" physical health (PHYSHLTH) in the last 30 days using different sets of predictor variables. The second model is the best of those analyzed because it has the highest R-squares and each category and variable is statistically significant. The R-squared at 0.15 is not great, but it is the best we can get using the variables we are allowed to analyze for the project. 
+
+For the second model, we considered depression status (ADDEPEV2), asthma status (ASTHMA3), and employment status (EMPLOY1) as predictor variables. The coefficients estimated by the model indicate the effect of each predictor variable on the number of days of "not good" physical health, while controlling for other variables in the model. Here are the key findings from the regression results:
+
+Depression (ADDEPEV2): Individuals reporting NOT having depression (ADDEPEV2 = 2) experienced, on average, 3.46 fewer days of "not good" physical health compared to those reporting depression.
+Asthma (ASTHMA3): Individuals without asthma (ASTHMA3 = 2) experienced, on average, 2.17 fewer days of "not good" physical health compared to those with asthma.
+Employment Status (EMPLOY1): Individuals employed for wages is the group of comparison (EMPLOY1 = 1).  Self-employed respondents (EMPLOY1 = 3) experienced, on average, 0.44 more days of "not good" physical health compared to those working for wages. The "not working" group (EMPLOY1 = 3) had an average of 8.73, the homemakers had an average of 1.43 more (EMPLOY1 = 5), and the retired group (EMPLOY1 = 7) had an average of 2.64 more poor physical health days that waged workers. Comparatively, the student group (EMPLOY1 = 6) had 0.19 LESS poor health days that waged workers. Which all wakes sense. Those working for wages are spending a lot of time often doing physically demanding jobs. The retired group is likely much higher in age, so are more inclined to health issues. Whereas the students are likely a younger population, on average, so are less prone to physical ailments. 
+
+Overall, the regression model showed a statistically significant relationship between the predictor variables and the number of days of "not good" physical health, as evidenced by the low p-values. However, the adjusted R-squared value of 0.1541 suggests that only 15.41% of the variability in the number of days of "not good" physical health can be explained by the predictor variables included in the model.While this model provides valuable insights into the factors associated with physical health, it is essential to interpret the results cautiously and consider potential confounding variables and limitations of the data. Further research and validation would be needed to establish causal relationships and improve the predictive accuracy of the model.
+
+
+------------------------------------------------------------------------
+
+
