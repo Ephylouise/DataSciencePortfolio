@@ -7,11 +7,20 @@ Welcome to my RProjects folder! This directory contains a collection of projects
 - **BRFSS2015 Data Analysis** (BRFSS_Part1.qmd and BRFSS_Part2.qmd):
 Analyzes the Behavioral Risk Factor Surveillance System (BRFSS) 2015 data to showcase expertise in **data cleaning**, **statistical analysis**, and **data visualization** techniques. This project is divided into two parts, with Part 1 focusing on data preparation and practice exercises, and Part 2 delving into in-depth analysis and interpretation of health-related variables, demonstrating advanced R programming skills.
 
+- **Cluster Analysis** (cluster_analysis_employees.R):
+Demonstration of K-means and hierarchical cluster analysis in R using a dataset developed by IBM data scientists and used to look at factors related to employee job satisfaction and attrition. The original dataset is accessible through [Kaggle](https://www.kaggle.com/datasets/pavansubhasht/ibm-hr-analytics-attrition-dataset).
+
 - **Fast Food Nutritional Analysis** (fastfood.qmd):
 Conducts a detailed nutritional analysis of fast food items from prominent chains, emphasizing **data manipulation** and **exploratory data analysis** in R. Through tasks like identifying high-calorie items and averaging nutrient contents, this project highlights my ability to work with real-world datasets and derive insightful conclusions, showcasing proficiency in R's `dplyr` and `ggplot2` packages.
 
 - **Fast Food Statistical Analysis** (fastfoodStats.qmd):
 Demonstrates **advanced statistical analysis** and **predictive modeling** in R, focusing on **correlation, regression, and significant predictor identification** within the fastfood dataset. Highlights the adept use of **tidyverse**, **openintro**, and **lm.beta** packages for insightful data exploration and interpretation.
+
+- **Linear Regression project** (linear_regression_for_business.R):
+Conducts a multiple linear regression analysis using a dataset of information from 310 credit card holders. The project's premise supposes work at a credit card company and leadership has requested a way to predict new cardholders’ credit card balances based on a number of factors.
+
+- **Logistic Regression project** (logistic_regression_insurance.R):
+Performing a logistic regression analysis on car insurance customer information using a dataset of 7,232 car insurance customers, some of whom have made insurance claims and some who haven’t. The relevant business question being answered is "What is the probability that a customer will make an auto insurance claim based on certain characteristics?"
 
 - **Mammalian Sleep Dataset Analysis** (msleep.qmd):
 Explores mammalian sleep patterns using the **msleep** dataset, focusing on **data manipulation** and **statistical computations** within R. This project highlights the effective use of the **tidyverse** package to analyze sleep data across various conservation statuses and animal orders, showcasing skills in summarizing and interpreting complex biological data.
@@ -31,10 +40,27 @@ Analyzes pizza delivery data to **explore patterns** related to free wine distri
 - **Pizza Delivery Statistical Analysis** (pizzaStats.qmd):
 Explores **correlations and regression analyses** within a pizza delivery dataset to understand factors influencing wine orders and billing amounts. Employs tidyverse for data preparation and visualization, and lm.beta for **standardized regression coefficients**, aiming to **identify patterns** in temperature, order size, and promotional strategies' **effects on sales outcomes**.
 
+- **Time-Series Analysis** (time_series_analysis.R):
+Part 1:
+Conducting time series analyses to forecast 2019 average annual airfare in order to inform the airline’s pricing strategy. The business question is: “What is a reasonable forecast of 2019 average U.S.
+domestic airfare given the patterns in past data?”
+Part 2:
+Demonstrating time series analysis on quarterly revenue to answer the business question: “What is a reasonable forecast for 2022 Q1, Q2, Q3, and Q4 revenue given the patterns in past data?"
+Part 3
+Conducting a time series of the quarterly revenue of Amazon Web Services from 1st quarter
+2014 to 4th quarter 2021 (in million U.S. dollars).
 
 ## Imported Data
 
-- pizza.csv: CSV file used in 'pizza.qmd' and 'pizzaStats.qmd'
+- pizza.csv: CSV file used in `pizza.qmd` and `pizzaStats.qmd`
+- airfare.csv: used in `time_series_analysis.R`
+- warner_music.csv: used in `time_series_analysis.R`
+- amazon_web_services.csv: used in `time_series_analysis.R`
+- Credit.csv: used in `linear_regression_for_business.R`
+- credit_card_prediction.csv: used in `linear_regression_for_business.R`
+- Employees.csv: used in `cluster_analysis_employees.R`
+- insurance.csv: used in `logistic_regression_insurances.R`
+- insurance_predictions.csv: used in `logistic_regression_insurances.R`
 
 ## Running the Projects
 
