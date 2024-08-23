@@ -1,20 +1,22 @@
 # DataSciencePortfolio
-A collection of my data science projects and Python scripts
+A comprehensive collection of my data science projects, Python scripts, and R projects. This portfolio showcases my skills in data manipulation, machine learning, statistical analysis, and proficiency with various programming languages and tools.
 
 ## Data Manipulation Projects
-A collection of projects focused on data processing, manipulating, aggregating, grouping, multi-indexing, and function creating to prepare data for training and testing.
+A collection of projects focused on data processing, manipulation, aggregation, grouping, multi-indexing, and function creation. These projects prepare data for training, testing, and other analysis purposes.
 
-## MachineLearningProject
-An end-to-end machine learning project that analyzes student data and creates a machine learning model to predict a student's performance based on select features. The stakeholders are the school's leadership, who hope to use the model(s) to identify students who need additional assistance and interventions to improve their grade. 
+- **[data_manipulation_projects](./data_manipulation_projects)**: Includes various projects demonstrating data manipulation techniques using Python libraries such as Pandas and NumPy.
 
-- PredictingStudentGrades.ipynb: A Python notebook containing the technical implementation of the project. It includes code and markdown blocks detailing the data cleaning, analysis, feature scaling, custom transformations, training and testing of models, model selection, and performance metrics.
-- ExecutiveSummary_StudentsGrades.docx: A word document containing the executive summary to communicate to the stakeholders the gained insights, present visualizations, and suggest next steps.
-- student-mat.csv: The dataset was downloaded from [UC Irvine’s machine learning repository](https://archive.ics.uci.edu/dataset/320/student+performance) and modified for this
-assignment. It contains student performance data from two Portuguese schools, originally
-collected from school reports and questionnaires.
+## Machine Learning Project
+An end-to-end machine learning project that builds and evaluates models to predict student performance based on various features. The project is designed to assist school leadership in identifying students who may need additional support.
+
+- **[machine_learning_project](./machine_learning_project)**: Detailed information about this project can be found in the README within this folder.
 
 ## Python Fundamentals
-A collection of Python specific work that showcases proficiency with many common Python libraries (NumPy, Pandas, Matplotlib, scikit-learn) and creating functions. 
+A collection of Python scripts and notebooks showcasing my proficiency with common Python libraries (NumPy, Pandas, Matplotlib, scikit-learn) and function creation.
+
+- **[python_fundamentals](./python_fundamentals)**: Contains Python notebooks and scripts focusing on foundational Python skills, including array manipulation, data processing, and algorithmic problem-solving.
 
 ## R Data Analysis Projects
-A collection of R specific work that showcases proficiency with the programming language, data analysis, data manipulation, exploratory analysis, statistical analysis, data visualizations, predictive modeling, regression analysis, and analysis interpretations. 
+A collection of R-specific projects that demonstrate proficiency in data analysis, data manipulation, exploratory analysis, statistical analysis, data visualization, predictive modeling, regression analysis, and interpretation of analysis results.
+
+- **[r_data_analysis_projects](./r_data_analysis_projects)**: Includes various projects performed using R, each organized into its own folder with associated data files and analysis scripts.
