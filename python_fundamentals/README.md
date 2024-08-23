@@ -1,54 +1,68 @@
-# Python Projects
+# Python Fundamentals
 
-Welcome to my PythonProjects folder! Here you'll find a variety of projects I've worked on, showcasing my skills in python coding and data analysis.
+Welcome to my Python Fundamentals project folder! Here you'll find a variety of projects I've worked on, showcasing my skills in python coding and data analysis.
 
-## Projects List
+## NumPy Notebooks
 
-- FunctionsA1 - Basic Python Functions: Demonstrates foundational Python functions for **arithmetic operations**, **string handling**, and **control structures**, emphasizing algorithmic thinking.
-- IntroPythonA1 - Exploring Python Basics: Focuses on **string and list manipulations**, underscoring the importance of data types and operations without external libraries.
-- IntroPythonA2 - Advanced Python Functions: Advances in Python programming with iterative processing and data manipulation, illustrating **character iteration**, **list handling**, and exploration of growth patterns.
-- IntroPythonA3 - Manipulating Lists and Strings: Delves into list manipulations and string handling, including modifying and expanding lists to underscore **mutable data structures** in Python.
-- NumPyA2 - Advanced NumPy Operations: Explores **NumPy array manipulation** with random module utilization, array slicing, reshaping, and concatenation, enhancing data science workflows.
-- NumPyA4 - Diverse NumPy Array Operations: Showcases creating and manipulating **NumPy arrays** with detailed initialization, random number generation, and sequence creation for analytical applications.
-- NumPyA5 - Advanced NumPy Techniques: Focuses on **multidimensional array manipulation**, indexing, slicing, and modifying arrays, highlighting control over randomness for predictable data analysis.
-- NumPyA6 - Comprehensive NumPy Array Operations: Engages in-depth with array functionalities, emphasizing **random number generation**, **statistics**, concatenation, stacking, and missing value handling.
-- NumPyA7 - Advanced Array Manipulation and Indexing: Intensifies array manipulation capabilities, featuring **creation, indexing, reshaping, sorting**, and **structured array handling**.
-- PandasA1 - Mastering Pandas Basics: Serves as an introduction to managing data with Pandas, building skills in **Series and DataFrame creation**, manipulation, and querying.
-- PandasA2 - Exploring Series and DataFrames in Pandas: Continues the Pandas journey, focusing on **Series manipulation**, **DataFrame creation**, and data handling transitions.
-- PandasA3 - Data Selection and Manipulation with Pandas: Advances data manipulation and selection in Pandas, highlighting **DataFrame indexing**, **slicing**, and data selection techniques.
-- PandasA4 - Handling Missing Data with Pandas: Introduces techniques for **managing missing data** within Pandas structures, practicing identification, analysis, and imputation of missing data.
-- PandasA5 - Advanced Data Structuring with Pandas: Delves into **multi-indexing** and data aggregation, facilitating complex data structuring and analysis with hierarchical indexing.
-- arrayargs.py: A program that accepts four integer arguments, forms a **NumPy array**, then prints the array's type and the product of its elements.
-- capCount.py: A program that analyzes a string to print the count of capital letters and the sum of their indices.
-- commonset.py: A program that identifies and prints common words between two sets, one provided via command line and a predefined set, displaying results uniquely.
-- comprehension.py: Converts string-typed integers from command line input to integers, multiplying those divisible by 3 by 10, and outputs the modified list.
-- counter.py: Processes a single string argument to print a dictionary that maps each unique letter to its frequency within the word.
-- countVowels.py: Analyzes a string to print the count of unique vowels, considering both uppercase and lowercase characters.
-- diffset.py: Identifies unique elements in one list compared to another, showcasing set operations with command-line arguments.
-- duckgoose.py: Filters out specific elements from a list, demonstrating list comprehension and conditional filtering.
-- duplicates.py: Removes duplicates and sorts a list in descending alphabetical order, highlighting list manipulation and sorting techniques.
-- fastfood.py: Performs **regression analysis** on nutritional data to predict calorie content, illustrating data analysis skills with pandas and statsmodels.
-- german.py: Predicts credit amounts using **predictive modeling** on demographic data, showcasing predictive modeling and data preprocessing.
-- gpacalc.py: Calculates GPA based on input grades, demonstrating **function creation and conditional logic** in a practical application.
-- grades.py: Computes the average score excluding a specified subject, illustrating **data manipulation and mathematical operations on dictionaries**.
-- inrange.py: Generates a list of numbers within a range that meet specific divisibility criteria, showcasing **loop control structures** and mathematical operations.
-- loopindex.py: Modifies a list of integers by adding their index values, demonstrating understanding of **list manipulation** and enumeration.
-- luke.py: Returns a character's relationship to Luke Skywalker based on a dictionary mapping, illustrating **conditional logic** and dictionary operations.
-- palindrome.py: Determines if a string is a palindrome, focusing on **string manipulation** and algorithmic thinking.
-- presidents.py: Analyzes historical data to compute the average height of U.S. presidents over a specified range, demonstrating **data slicing and aggregation with pandas**.
-- randdf.py: Creates a pandas DataFrame with random integers, highlighting **data frame creation** and random data generation with numpy.
-- reallyrandom.py: Outputs a randomly selected value based on input criteria, showcasing numpy's randomization and **array indexing** capabilities.
-- sacramento.py: Utilizes **logistic regression** to analyze housing data, emphasizing **predictive analytics** and **statistical modeling** skills.
-- shortest.py: Identifies the shortest word in a string, underscoring **string manipulation** and analytical thinking.
+A series of short notebooks focused on NumPy, showcasing various array manipulation, indexing, and operation techniques:
 
+- **array_concatenation.ipynb**: Explores array concatenation, stacking, and splitting techniques.
+- **array_indexing.ipynb**: Demonstrates indexing, slicing, and selecting elements within arrays.
+- **array_manipulation.ipynb**: Covers array reshaping, sorting, and general manipulation techniques.
+- **array_operations.ipynb**: Focuses on basic array operations like creating arrays, and filling values.
+- **character_iteration.ipynb**: Discusses iteration over characters and elements in strings and lists.
+- **mutable_data_structures.ipynb**: Explores working with mutable data structures like lists in Python.
+- **numpy_array_manipulation.ipynb**: Delves into specific NumPy array manipulation techniques.
+- **numpy_dictionaries.ipynb**: Combines the use of dictionaries with NumPy arrays, showcasing structured data handling.
 
-## Imported Data
+## Pandas Notebooks
 
-- sacramento.csv: CSV file used in sacramento.py
-- german_credit_data.csv: CSV file used in german.py
-- fastfood.csv: CSV file used in fastfood.py
-- president_heights.csv: CSV file used in presidents.py
+A series of short notebooks focused on the Pandas library, showcasing data manipulation and analysis techniques:
 
+- **series_df_creation.ipynb**: Basics of Series and DataFrame creation, manipulation, and querying.
+- **series_df_indexing.ipynb**: Techniques for Series manipulation and DataFrame indexing.
+- **dataframe_slicing.ipynb**: Focuses on DataFrame slicing, selection, and indexing.
+- **handling_missing_data.ipynb**: Strategies for managing and imputing missing data.
+- **multi_indexing.ipynb**: Explores multi-indexing and data aggregation for complex data structures.
+
+## Python Scripts
+
+This section contains various Python scripts that demonstrate fundamental coding skills, such as data manipulation, algorithm implementation, and problem-solving:
+
+- **arrayargs.py**: Forms a NumPy array from four integers and prints the array's type and product.
+- **capCount.py**: Counts capital letters in a string and sums their indices.
+- **commonset.py**: Finds and prints common words between two sets.
+- **comprehension.py**: Converts and modifies string-typed integers based on divisibility.
+- **counter.py**: Maps unique letters in a string to their frequency.
+- **count_vowels.py**: Counts unique vowels in a string, case-sensitive.
+- **diffset.py**: Identifies unique elements between two lists.
+- **duckgoose.py**: Filters elements from a list using comprehension.
+- **duplicates.py**: Removes duplicates and sorts a list in descending order.
+- **fastfood.py**: Predicts calories using regression analysis on nutritional data.
+- **german.py**: Predicts credit amounts with predictive modeling on demographic data.
+- **gpacalc.py**: Calculates GPA based on input grades using functions and logic.
+- **grades.py**: Computes the average score, excluding a specified subject.
+- **inrange.py**: Generates a list of numbers within a range, based on divisibility.
+- **loopindex.py**: Adds index values to a list of integers.
+- **luke.py**: Determines a character's relationship to Luke Skywalker.
+- **palindrome.py**: Checks if a string is a palindrome.
+- **presidents.py**: Computes the average height of U.S. presidents using data slicing.
+- **randdf.py**: Creates a pandas DataFrame with random integers.
+- **reallyrandom.py**: Selects a random value based on input criteria.
+- **sacramento.py**: Analyzes housing data with logistic regression.
+- **shortest.py**: Finds the shortest word in a string.
+
+- **basic_functions.ipynb**: Demonstrates Python functions for arithmetic, strings, and control structures.
+- **string_list_manipulation.ipynb**: Explores string and list manipulations without external libraries.
+
+### Imported Data for Python Scripts
+
+The following datasets are used within the Python scripts listed above:
+
+- **sacramento.csv**: Used in `sacramento.py`.
+- **german_credit_data.csv**: Used in `german.py`.
+- **fastfood.csv**: Used in `fastfood.py`.
+- **president_heights.csv**: Used in `presidents.py`.
 
 ## Running the Projects
 
